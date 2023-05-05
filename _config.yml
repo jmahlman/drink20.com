@@ -1,0 +1,35 @@
+title: Drink20 Game
+description: Take a Drink and Roll Initiative
+
+url: https://drink20.com
+paginate_path: "blog/page:num/"
+permalink: blog/:title/
+
+# Header Option
+# header: large
+
+sass:
+    style: compressed
+
+markdown: kramdown
+highlighter: rouge
+plugins: [jekyll-paginate]
+paginate: 10
+
+navigation:
+    - title: Home
+      url: /index.html
+    - title: About
+      url: /about
+    - title: Contact
+      url: /contact
+
+social:
+    twitter: drink20pod
+    facebook: drink20philly
+    email: info@drink20.com
+
+google_analytics: "UA-138499601-1"
+
+# disqus:
+#     shortname: brianmaierjr
