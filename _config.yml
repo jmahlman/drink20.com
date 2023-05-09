@@ -1,4 +1,4 @@
-title: Drink20 Game
+title: Drink20 Philly
 description: Take a Drink and Roll Initiative
 
 url: https://drink20.com
@@ -23,6 +23,8 @@ navigation:
       url: /about
     - title: Contact
       url: /contact
+    - title: Code Of Conduct
+      url: /CoC
 
 social:
     twitter: drink20Philly
