@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Planning Has Begun!
-date: 2024-05-28 20:00:00 +0500
+date: '2024-05-28T20:00:00-05:00'
 description: Last year, almost a year ago to the day, we posted our welcome message. At long last, we're finally getting things rolling with our first location, Broken Goblet Brewing!
 author: John
 image: uploads/posts/2024-05-28-planning-has-begun/Drink20AtBgob.jpg
