@@ -29,7 +29,7 @@ We know that D&D is the most popular game around, but we also want to get people
 
 ### Where can I find more information?
 
-We will post news and announcements things on this website. We're also going to link the blog feeds to our other platforms including our [Facebook page](http://facebook.com/drink20Philly). Facebook is most likely where our events will be posted as most breweries still use it for events. We also have an [X account](https://x.com/drink20philly) and we're working on an Instagram and a Bluesky account.
+We will post news and announcements on this website. We're also going to link the blog feeds to our other platforms including our [Facebook page](http://facebook.com/drink20Philly). Facebook is most likely where our events will be posted as most breweries still use it for events. We also have an [X account](https://x.com/drink20philly) and we're working on an Instagram and a Bluesky account.
 
 If you would like more information about events or if you'd like to run a game, please see our [contact page][contact-page].
 
