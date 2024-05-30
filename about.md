@@ -5,9 +5,34 @@ title: About Drink20
 
 ## About Us
 
-<p class="intro"><span class="dropcap">D</span>rink20 is a run by a group of friends and tabletop players that like drinking and going to breweries/bars. The goal of Drink20 is to plan tabletop gaming events in bars and breweries in and around the Philadelphia region.
-</p>
+Hello! We're John and Alessa, a couple of nerds that have many many years of experience running and playing various tabletop games. The goal of Drink20 is to schedule and run tabletop gaming events in bars and breweries in and around the Philadelphia region.
+
+### Our History
+
+Drink20 started out as a live-play podcast with custom drinking rules for play (we never released the rules to the public, that may happen eventually). We were really bad at releasing things on schedule, but we managed to release 10 episodes before the COVID-19 pandemic and subsequent lock-downs. We had grandiose ideas of running our sessions at and in conjunction with local breweries, getting them to sponsor us, and more. Of course, this all just stopped completely in March 2019. After a few months, we knew the podcast was dead, and so Drink20 went into hibernation for another time.
+
+### Wait...aren't there others that do this?
+
+Yes! There are others in our area that run similar game nights! We are actually active participants in a one of the local groups. We actually borrowed inspiration from them and wanted to see if we could do more events closer to us, and maybe add our own little brand of planning and style to the events. Our events differ from one of the most popular groups events in the following ways:
+
+#### Our events are free!
+
+We do not charge to play at any of our games. You're not obligated to come to an event, and you'll have more money to spend at the venues.
+
+#### Our events cater to all skill levels
+
+Unlike other events, we do not run only high or low level campaigns. We leave that up to the DMs and the players to choose what they want to do. We may have a table with all level 1 players and another with level 10 players.  Our goal is to have something for everyone whenever possible. We aim to be flexible and welcoming to all.
+
+#### We want to play more than D&D
+
+We know that D&D is the most popular game around, but we also want to get people interested in other games! We have people that run games like *Masks*, *Vampire: The Masquerade*, or *Blades in the Dark*. While we will start our with D&D 5e, we hope to introduce more games as time goes on.
+
+### Where can I find more information?
+
+We will post news and announcements things on this website. We're also going to link the blog feeds to our other platforms including our [Facebook page](http://facebook.com/drink20Philly). Facebook is most likely where our events will be posted as most breweries still use it for events. We also have an [X account](https://x.com/drink20philly) and we're working on an Instagram and a Bluesky account.
 
 If you would like more information about events or if you'd like to run a game, please see our [contact page][contact-page].
+
+Hope to see you at a game!
 
 [contact-page]:/contact
