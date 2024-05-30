@@ -19,6 +19,10 @@ Yes! There are others in our area that run similar game nights! We are actually 
 
 We do not charge to play at any of our games. You're not obligated to come to an event, and you'll have more money to spend at the venues.
 
+#### Wait, does that mean I don't get paid to run a game?
+
+Yes. At this time, Drink20 is entirely volunteer operated and we do not receive any income from the events. We will work with venues to see if they would be willing to provide any benefits for anyone running a game (perhaps drink tokens or discounts). We respect anyone's decision to not run a session without payment.
+
 #### Our events cater to all skill levels
 
 Unlike other events, we do not run only high or low level campaigns. We leave that up to the DMs and the players to choose what they want to do. We may have a table with all level 1 players and another with level 10 players.  Our goal is to have something for everyone whenever possible. We aim to be flexible and welcoming to all.
@@ -31,8 +35,6 @@ We know that D&D is the most popular game around, but we also want to get people
 
 We will post news and announcements on this website. We're also going to link the blog feeds to our other platforms including our [Facebook page](http://facebook.com/drink20Philly). Facebook is most likely where our events will be posted as most breweries still use it for events. We also have an [X account](https://x.com/drink20philly) and we're working on an Instagram and a Bluesky account.
 
-If you would like more information about events or if you'd like to run a game, please see our [contact page][contact-page].
+If you would like more information about events or if you'd like to run a game, please see our [contact page](/contact)
 
 Hope to see you at a game!
-
-[contact-page]:/contact
