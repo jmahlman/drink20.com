@@ -13,7 +13,7 @@ Drink20 started out as a live-play podcast with custom drinking rules for play (
 
 ### Wait...aren't there others that do this?
 
-Yes! There are others in our area that run similar game nights! We are actually active participants in a one of the local groups. We actually borrowed inspiration from them and wanted to see if we could do more events closer to us, and maybe add our own little brand of planning and style to the events. Our events differ from one of the most popular groups events in the following ways:
+Yes! There are others in our area that run similar game nights! We are active participants in a one of the local groups. We actually borrowed inspiration from them and wanted to see if we could do more events closer to us, and maybe add our own little brand of planning and style to the events. Our events differ from one of the most popular groups events in the following ways:
 
 #### Our events are free!
 
