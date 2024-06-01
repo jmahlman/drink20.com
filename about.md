@@ -9,7 +9,7 @@ Hello! We're John and Alessa, a couple of nerds that have many many years of exp
 
 ### Our History
 
-Drink20 started out as a live-play podcast with custom drinking rules for play (we never released the rules to the public, that may happen eventually). We were really bad at releasing things on schedule, but we managed to release 10 episodes before the COVID-19 pandemic and subsequent lock-downs. We had grandiose ideas of running our sessions at and in conjunction with local breweries, getting them to sponsor us, and more. Of course, this all just stopped completely in March 2019. After a few months, we knew the podcast was dead, and so Drink20 went into hibernation for another time.
+Drink20 started out as a live-play podcast with custom drinking rules for play (we never released the rules to the public, that may happen eventually). We were really bad at releasing things on schedule, but we managed to release 10 episodes before the COVID-19 pandemic and subsequent lock-downs. We had grandiose ideas of running our sessions at and in conjunction with local breweries, getting them to sponsor us, and more. Of course, this all just stopped completely in March 2020. After a few months, we knew the podcast was dead, and so Drink20 went into hibernation for another time.
 
 ### Wait...aren't there others that do this?
 
