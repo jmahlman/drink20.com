@@ -1,5 +1,6 @@
 title: Drink20 Philly
 description: Take a Drink and Roll Initiative
+# Theme name: Long Haul: https://jekyllthemes.io/theme/long-haul
 
 url: https://drink20.com
 paginate_path: "blog/page:num/"
@@ -29,7 +30,6 @@ navigation:
       url: /CoC
 
 social:
-    twitter: drink20Philly
     facebook: drink20philly
     email: info@drink20.com
 
