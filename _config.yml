@@ -28,6 +28,8 @@ navigation:
       url: /contact
     - title: Code Of Conduct
       url: /CoC
+    - title: FAQs
+      url: /FAQ
 
 social:
     facebook: drink20philly
