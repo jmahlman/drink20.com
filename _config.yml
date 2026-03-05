@@ -24,7 +24,9 @@ navigation:
       url: /index.html
     - title: About
       url: /about
-    - title: Contact
+    - title: Current Breweries
+      url: /breweries
+    - title: Contact Us
       url: /contact
     - title: Code Of Conduct
       url: /CoC
@@ -33,6 +35,6 @@ navigation:
 
 social:
     facebook: drink20philly
-    #email: info@drink20.com
+    bluesky: drink20.bsky.social
 
 google_analytics: "G-L3SCGD6NDM"

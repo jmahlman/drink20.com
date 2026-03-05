@@ -10,36 +10,37 @@
 			<ul class="noList">
 				{%- if site.social.facebook -%}
 				<li>
-					<a
-						href="https://www.facebook.com/{{ site.social.facebook }}"
-						target="_blank"
+				<a href="https://www.facebook.com/{{ site.social.facebook }}" target="_blank">
+					<svg
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 320 512"
+					style="height:30px;width:30px;"
+					aria-label="Facebook"
 					>
-						<svg
-							id="facebook-square"
-							class="custom-icon"
-							version="1.1"
-							xmlns="http://www.w3.org/2000/svg"
-							xmlns:xlink="http://www.w3.org/1999/xlink"
-							viewBox="0 0 100 100"
-							style="height: 30px; width: 30px;"
-						>
-							<circle
-								class="outer-shape"
-								cx="50"
-								cy="50"
-								r="48"
-								style="opacity: 1;"
-							></circle>
-							<path
-								class="inner-shape"
-								style="opacity: 1;"
-								transform="translate(25,25) scale(0.5)"
-								d="M82.667,1H17.335C8.351,1,1,8.351,1,17.336v65.329c0,8.99,7.351,16.335,16.334,16.335h65.332 C91.652,99.001,99,91.655,99,82.665V17.337C99,8.353,91.652,1.001,82.667,1L82.667,1z M84.318,50H68.375v42.875H50V50h-8.855V35.973 H50v-9.11c0-12.378,5.339-19.739,19.894-19.739h16.772V22.3H72.967c-4.066-0.007-4.57,2.12-4.57,6.078l-0.023,7.594H86.75 l-2.431,14.027V50z"
-							></path>
-						</svg>
-					</a>
+					<path
+						fill="#1877F2"
+						d="M279.14 288l14.22-92.66h-88.91V127.56c0-25.35 12.42-50.06 52.24-50.06H293V6.26S259.36 0 225.36 0C141.09 0 89.09 51.53 89.09 144.72V195.3H0V288h89.09v224h107.36V288z"
+					/>
+					</svg>
+				</a>
 				</li>
-				{%- endif -%} {%- if site.social.twitter -%}
+				{%- endif -%} {%- if site.social.bluesky -%}
+				<li>
+				<a href="https://bsky.app/profile/{{ site.social.bluesky }}" target="_blank">
+					<svg
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 600 530"
+					style="height:30px;width:30px;"
+					aria-label="Bluesky"
+					>
+					<path
+						fill="#1DA1F2"
+						d="M135 44c69 52 143 158 165 203 22-45 96-151 165-203 50-38 131-67 131 26 0 19-11 162-17 185-22 79-101 99-172 87 124 21 156 89 88 158-129 132-186-33-201-75-3-8-4-12-4-12s-1 4-4 12c-15 42-72 207-201 75-68-69-36-137 88-158-71 12-150-8-172-87-6-23-17-166-17-185 0-93 81-64 131-26z"
+					/>
+					</svg>
+				</a>
+				</li>
+				{%- endif -%}{%- if site.social.twitter -%}
 				<li>
 					<a
 						href="https://twitter.com/{{ site.social.twitter }}"
