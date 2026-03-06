@@ -180,10 +180,16 @@ jobs:
           echo "Ready to post: $title"
 
       # Shrink the images to fit bluesky's image limit (if there are any)
-      - name: Optimize social images
+      - name: Install ImageMagick
+        run: sudo apt-get update && sudo apt-get install -y imagemagick
+        
+      - name: Compress social images
         run: |
+          shopt -s nullglob
           for img in assets/social/*.png; do
-            convert "$img" -resize 2000x2000\> -quality 85 "$img"
+            echo "Optimizing $img"
+            convert "$img" -resize 2000x2000\> -strip -quality 82 "$img"
+            ls -lh "$img"
           done
 
       # Post to Bluesky
