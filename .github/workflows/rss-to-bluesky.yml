@@ -179,6 +179,13 @@ jobs:
 
           echo "Ready to post: $title"
 
+      # Shrink the images to fit bluesky's image limit (if there are any)
+      - name: Optimize social images
+        run: |
+          for img in assets/social/*.png; do
+            convert "$img" -resize 2000x2000\> -quality 85 "$img"
+          done
+
       # Post to Bluesky
       - name: Post to Bluesky
         if: steps.fetch_post.outputs.preview != '' && steps.fetch_post.outputs.rss_url != ''
