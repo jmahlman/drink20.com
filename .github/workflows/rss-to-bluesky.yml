@@ -18,6 +18,9 @@ on:
 env:
   RSS_FEED_URL: ${{ vars.RSS_FEED_URL || 'https://drink20.com/feed' }}
 
+permissions:
+  contents: write
+  
 jobs:
   fetch-and-post:
     runs-on: ubuntu-latest
