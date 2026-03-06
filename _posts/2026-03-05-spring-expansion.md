@@ -3,7 +3,7 @@ layout: post
 title: Spring Expansion!
 date: 2026-03-05
 author: Alessa
-image: uploads/posts/2026-03-05-spring-expansion/Aristaeus Drink20.png
+image: uploads/posts/2026-03-05-spring-expansion/Aristaeus Drink20.jpg
 
 ---
 Rejoice, fellow adventurers! We have finally made it through the worst of winter, and spring is right around the corner. Flowers are blooming, trees are budding, and Drink20 is expanding! This month (March 2026), we will be holding our first event at [Aristaeus Brewing](https://aristaeusbrewing.com/) in Langhorne, PA. They will be the third brewery to host us, and we are excited to run games at a location voted Bucks County’s Best Brewery three years in a row!
