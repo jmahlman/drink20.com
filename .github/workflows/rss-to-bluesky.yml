@@ -1,0 +1,227 @@
+name: Post Latest Blog from RSS to Bluesky
+
+on:
+  workflow_run:
+    workflows:
+      - "Deploy Jekyll site to Pages"
+    types:
+      - completed
+
+  workflow_dispatch:
+    inputs:
+      skip_date_check:
+        description: "Skip the date check and post anyway"
+        required: false
+        type: boolean
+        default: false
+
+env:
+  RSS_FEED_URL: ${{ vars.RSS_FEED_URL || 'https://drink20.com/feed' }}
+
+jobs:
+  fetch-and-post:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Initial delay
+      - name: Initial Delay
+        run: sleep 30
+
+      # Checkout repository to access posted URLs tracking
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Cache apt packages
+      - name: Cache apt packages
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: libxml2-utils
+          version: 1.0
+
+      # Install required tools
+      - name: Install xmllint
+        run: |
+          sudo apt-get update && sudo apt-get install -y libxml2-utils
+
+      # Fetch the latest blog post from RSS feed
+      - name: Fetch Latest Blog Post
+        id: fetch_post
+        run: |
+          # Fetch RSS feed
+          response=$(curl -s "$RSS_FEED_URL")
+
+          # Check if we got a response
+          if [[ -z "$response" ]]; then
+            echo "Error: Empty response from RSS feed. Exiting."
+            exit 1
+          fi
+
+          # Detect feed type (Atom vs RSS)
+          if echo "$response" | grep -q '<feed xmlns="http://www.w3.org/2005/Atom"'; then
+            FEED_TYPE="atom"
+          else
+            FEED_TYPE="rss"
+          fi
+
+          # Parse based on feed type
+          if [[ "$FEED_TYPE" == "atom" ]]; then
+            # Atom feed parsing
+            # Atom uses <entry> instead of <item>, <summary> or <content> instead of <description>
+            description=$(echo "$response" | xmllint --xpath "string(//*[local-name()='entry'][1]/*[local-name()='summary'])" - 2>/dev/null || echo "")
+
+            # If no summary, try content
+            if [[ -z "$description" ]]; then
+              description=$(echo "$response" | xmllint --xpath "string(//*[local-name()='entry'][1]/*[local-name()='content'])" - 2>/dev/null || echo "")
+            fi
+
+            # Get title
+            title=$(echo "$response" | xmllint --xpath "string(//*[local-name()='entry'][1]/*[local-name()='title'])" - 2>/dev/null || echo "")
+
+            # Atom links are in attributes, not text nodes
+            url=$(echo "$response" | xmllint --xpath "string(//*[local-name()='entry'][1]/*[local-name()='link']/@href)" - 2>/dev/null || echo "")
+
+            # Atom uses <updated> or <published> instead of <pubDate>
+            pub_date=$(echo "$response" | xmllint --xpath "string(//*[local-name()='entry'][1]/*[local-name()='published'])" - 2>/dev/null || echo "")
+            if [[ -z "$pub_date" ]]; then
+              pub_date=$(echo "$response" | xmllint --xpath "string(//*[local-name()='entry'][1]/*[local-name()='updated'])" - 2>/dev/null || echo "")
+            fi
+          else
+            # RSS feed parsing
+            description=$(echo "$response" | xmllint --xpath "string(//item[1]/description)" - 2>/dev/null || echo "")
+            url=$(echo "$response" | xmllint --xpath "string(//item[1]/link)" - 2>/dev/null || echo "")
+            pub_date=$(echo "$response" | xmllint --xpath "string(//item[1]/pubDate)" - 2>/dev/null || echo "")
+            title=$(echo "$response" | xmllint --xpath "string(//item[1]/title)" - 2>/dev/null || echo "")
+
+            # If that didn't work, try alternative approaches
+            if [[ -z "$title" ]] || [[ -z "$url" ]]; then
+              # Try using local-name() to ignore namespaces
+              description=$(echo "$response" | xmllint --xpath "string(//*[local-name()='item'][1]/*[local-name()='description'])" - 2>/dev/null || echo "")
+              url=$(echo "$response" | xmllint --xpath "string(//*[local-name()='item'][1]/*[local-name()='link'])" - 2>/dev/null || echo "")
+              pub_date=$(echo "$response" | xmllint --xpath "string(//*[local-name()='item'][1]/*[local-name()='pubDate'])" - 2>/dev/null || echo "")
+              title=$(echo "$response" | xmllint --xpath "string(//*[local-name()='item'][1]/*[local-name()='title'])" - 2>/dev/null || echo "")
+            fi
+
+            # Still didn't work? Try with content:encoded for description (common in WordPress)
+            if [[ -z "$description" ]]; then
+              echo "Trying content:encoded for description..."
+              description=$(echo "$response" | xmllint --xpath "string(//*[local-name()='item'][1]/*[local-name()='encoded'])" - 2>/dev/null || echo "")
+            fi
+          fi
+
+          # Strip HTML tags if present
+          description=$(echo "$description" | sed 's/<[^>]*>//g' | sed 's/&[^;]*;//g' | tr -s ' ' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+          title=$(echo "$title" | sed 's/<[^>]*>//g' | sed 's/&[^;]*;//g' | tr -s ' ' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+          # Log parsed data
+          echo "Parsed Data - Title: $title, Description: $description, URL: $url, PubDate: $pub_date"
+
+          # Handle parsing errors
+          if [[ -z "$title" ]] || [[ -z "$url" ]]; then
+            echo "Error: Failed to parse title or URL from the feed."
+            echo "Feed type: $FEED_TYPE"
+            echo "Please check the feed structure manually."
+            exit 1
+          fi
+
+          # Check if URL has already been posted
+          POSTED_FILE=".github/bluesky-posted-urls.txt"
+          if [[ -f "$POSTED_FILE" ]] && grep -Fxq "$url" "$POSTED_FILE"; then
+            echo "This URL has already been posted to Bluesky: $url"
+            echo "Exiting to prevent duplicate post."
+            exit 0
+          fi
+
+          # Extract and compare dates (skip if override is enabled)
+          if [[ "${{ inputs.skip_date_check }}" == "true" ]]; then
+            echo "Skipping date check"
+          else
+            # Only check date if we have a pub_date
+            if [[ -n "$pub_date" ]]; then
+              today=$(date -u +%Y-%m-%d)
+              pub_date_parsed=$(date -d "$pub_date" -u +%Y-%m-%d 2>/dev/null || echo "PARSE_ERROR")
+
+              if [[ "$pub_date_parsed" == "PARSE_ERROR" ]]; then
+                echo "Warning: Could not parse publication date. Continuing anyway."
+              elif [[ "$pub_date_parsed" != "$today" ]]; then
+                echo "Post is not from today ($pub_date_parsed). Exiting."
+                exit 0
+              fi
+            fi
+          fi
+
+          # Format and export environment variables
+          # Create custom post text
+          preview="New post on Drink20.com! : ${title} ${url}"
+
+          # Verify it fits in Bluesky's 300 character limit
+          if [[ ${#preview} -gt 300 ]]; then
+            echo "Post exceeds 300 characters, truncating title..."
+
+            # Calculate how much space we have for the title
+            base_text_length=47
+            url_length=${#url}
+            max_title_length=$((300 - base_text_length - url_length - 3))
+
+            if [[ ${#title} -gt $max_title_length ]]; then
+              title="${title:0:$max_title_length}..."
+            fi
+
+            preview="New post on Drink20.com! : ${title} ${url}"
+          fi
+
+          # Export variables
+          echo "preview=$preview" >> $GITHUB_ENV
+          echo "rss_url=$url" >> $GITHUB_ENV
+          echo "preview=$preview" >> $GITHUB_OUTPUT
+          echo "rss_url=$url" >> $GITHUB_OUTPUT
+
+          echo "Ready to post: $title"
+
+      # Post to Bluesky
+      - name: Post to Bluesky
+        if: steps.fetch_post.outputs.preview != '' && steps.fetch_post.outputs.rss_url != ''
+        uses: myConsciousness/bluesky-post@v5
+        with:
+          text: "${{ steps.fetch_post.outputs.preview }}"
+          link-preview-url: "${{ steps.fetch_post.outputs.rss_url }}"
+          identifier: ${{ secrets.BLUESKY_IDENTIFIER }}
+          password: ${{ secrets.BLUESKY_PASSWORD }}
+
+      # Track posted URL to prevent duplicates
+      - name: Record Posted URL
+        if: success() && steps.fetch_post.outputs.rss_url != ''
+        run: |
+          POSTED_FILE=".github/bluesky-posted-urls.txt"
+          mkdir -p .github
+          echo "${{ steps.fetch_post.outputs.rss_url }}" >> "$POSTED_FILE"
+
+          # Keep only the last 100 URLs to prevent file from growing too large
+          if [[ $(wc -l < "$POSTED_FILE") -gt 100 ]]; then
+            tail -n 100 "$POSTED_FILE" > "$POSTED_FILE.tmp"
+            mv "$POSTED_FILE.tmp" "$POSTED_FILE"
+          fi
+
+      # Commit the updated tracking file
+      - name: Commit Posted URLs
+        if: success() && steps.fetch_post.outputs.rss_url != ''
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .github/bluesky-posted-urls.txt
+
+          # Check if there are changes to commit
+          if ! git diff --staged --quiet; then
+            git commit -m "Track posted URL"
+            git push
+          fi
+
+      # Debug step: Print environment variables
+      - name: Debug Environment Variables
+        if: always()
+        run: |
+          echo "Preview Text: ${{ steps.fetch_post.outputs.preview }}"
+          echo "RSS URL: ${{ steps.fetch_post.outputs.rss_url }}"
+          echo "RSS Feed URL: $RSS_FEED_URL"
+          echo "Fetch step conclusion: ${{ steps.fetch_post.conclusion }}"
