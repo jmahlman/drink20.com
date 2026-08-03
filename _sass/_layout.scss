@@ -28,7 +28,9 @@
 	color: var(--text);
 	text-decoration: none;
 	font-family: var(--font-brand);
-	font-weight: 400;
+	/* 700 is Copperplate CC's "Bold"; the 400 cut is too light to hold the
+	   masthead at this size. */
+	font-weight: 700;
 	/* Copperplate is a caps face and wants air between the letters. */
 	letter-spacing: 0.06em;
 	font-size: var(--step-1);
