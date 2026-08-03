@@ -20,6 +20,7 @@ plugins:
 paginate: 10
 
 exclude:
+- assets/img/README.md
 - Dockerfile
 - docker-compose.yml
 - package.json
