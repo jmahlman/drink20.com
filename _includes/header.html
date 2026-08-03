@@ -1,41 +1,49 @@
 <header class="masthead">
 	<div class="container masthead__inner">
 		<a class="brand" href="{{ '/' | relative_url }}">
-			{% include d20.svg class="brand__mark" %}
+			<img
+				class="brand__mark"
+				src="{{ '/assets/img/d20-mark.png' | relative_url }}"
+				alt=""
+				width="512"
+				height="512"
+			/>
 			<span class="brand__text">Drink<span class="brand__accent">20</span> Philly</span>
 		</a>
 
-		<nav aria-label="Main">
-			<button
-				class="nav__toggle"
-				type="button"
-				aria-expanded="false"
-				aria-controls="nav-menu"
-				data-nav-toggle
-			>
-				<span class="nav__toggle-bars" aria-hidden="true"></span>
-				<span class="visually-hidden">Menu</span>
-			</button>
+		<div class="masthead__actions">
+			{%- include theme-toggle.html -%}
 
-			<ul class="nav__list" id="nav-menu" hidden>
-				{%- for link in site.navigation -%}
-					{%- assign is_home = false -%}
-					{%- if link.url == '/index.html' and page.url == '/' -%}{%- assign is_home = true -%}{%- endif -%}
-					{%- assign is_current = false -%}
-					{%- if is_home -%}
-						{%- assign is_current = true -%}
-					{%- elsif link.url != '/index.html' and page.url contains link.url -%}
-						{%- assign is_current = true -%}
-					{%- endif -%}
-					<li>
-						<a
-							class="nav__link"
-							href="{{ link.url | relative_url }}"
-							{% if is_current %}aria-current="page"{% endif %}
-						>{{ link.title }}</a>
-					</li>
-				{%- endfor -%}
-			</ul>
-		</nav>
+			<nav aria-label="Main">
+				<button
+					class="nav__toggle"
+					type="button"
+					aria-expanded="false"
+					aria-controls="nav-menu"
+					data-nav-toggle
+				>
+					<span class="nav__toggle-bars" aria-hidden="true"></span>
+					<span class="visually-hidden">Menu</span>
+				</button>
+
+				<ul class="nav__list" id="nav-menu" hidden>
+					{%- for link in site.navigation -%}
+						{%- assign is_current = false -%}
+						{%- if link.url == '/index.html' -%}
+							{%- if page.url == '/' -%}{%- assign is_current = true -%}{%- endif -%}
+						{%- elsif page.url contains link.url -%}
+							{%- assign is_current = true -%}
+						{%- endif -%}
+						<li>
+							<a
+								class="nav__link"
+								href="{{ link.url | relative_url }}"
+								{% if is_current %}aria-current="page"{% endif %}
+							>{{ link.title }}</a>
+						</li>
+					{%- endfor -%}
+				</ul>
+			</nav>
+		</div>
 	</div>
 </header>

@@ -6,13 +6,8 @@ url: https://drink20.com
 paginate_path: "blog/page:num/"
 permalink: blog/:title/
 
-# --- Theme ------------------------------------------------------------------
-# Skins live in _sass/_tokens.scss: parchment | midnight | press
-default_skin: midnight
-# Floating switcher for comparing skins in the browser. Set to false (or
-# delete the _includes/skin-switcher.html + _sass/_skin-switcher.scss pair)
-# once a skin is picked.
-skin_switcher: true
+# Theme: dark by default, with a light mode behind the masthead toggle.
+# Colours live in _sass/_tokens.scss.
 
 sass:
     style: compressed

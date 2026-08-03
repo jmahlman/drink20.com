@@ -20,6 +20,7 @@
 	letter-spacing: 0.03em;
 	text-decoration: none;
 	cursor: pointer;
+	box-shadow: 0 8px 24px -14px var(--accent);
 	transition: background var(--transition), color var(--transition),
 		border-color var(--transition), transform var(--transition);
 }
@@ -35,6 +36,7 @@
 	background: transparent;
 	color: var(--text);
 	border-color: var(--border-strong);
+	box-shadow: none;
 }
 
 .button--ghost:hover {
@@ -50,30 +52,48 @@
 	padding: 0;
 	margin: 0;
 	display: grid;
-	gap: var(--space-l);
+	gap: var(--space-m);
+}
+
+/* Two up from tablet width. */
+@media (min-width: 48rem) {
+	.post-list {
+		grid-template-columns: repeat(2, 1fr);
+	}
 }
 
 .post-card {
 	position: relative;
-	display: grid;
-	gap: var(--space-2xs);
-	padding-bottom: var(--space-l);
-	border-bottom: 1px solid var(--border);
-}
-
-.post-list > .post-card:last-child {
-	border-bottom: 0;
-	padding-bottom: 0;
-}
-
-.post-card__media {
-	order: -1;
-	overflow: hidden;
+	display: flex;
+	align-items: flex-start;
+	gap: var(--space-s);
+	padding: var(--space-m);
+	background: var(--surface);
+	border: 1px solid var(--border);
 	border-radius: var(--radius-lg);
+	transition: border-color var(--transition), transform var(--transition);
+}
+
+.post-card:hover {
+	border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+	transform: translateY(-3px);
+}
+
+.post-card__body {
+	display: grid;
+	gap: var(--space-3xs);
+	min-width: 0;
+}
+
+/* A thumbnail, not a banner — the headline is what people scan for. */
+.post-card__media {
+	flex: none;
+	width: 5.5rem;
+	height: 5.5rem;
+	overflow: hidden;
+	border-radius: var(--radius);
 	border: 1px solid var(--border);
 	background: var(--surface-2);
-	aspect-ratio: 16 / 9;
-	margin-bottom: var(--space-2xs);
 }
 
 .post-card__media img {
@@ -84,7 +104,7 @@
 }
 
 .post-card:hover .post-card__media img {
-	transform: scale(1.03);
+	transform: scale(1.05);
 }
 
 .post-card__meta {
@@ -103,7 +123,8 @@
 }
 
 .post-card__title {
-	font-size: var(--step-2);
+	font-size: var(--step-1);
+	line-height: 1.25;
 }
 
 .post-card__title a {
@@ -124,10 +145,12 @@
 
 .post-card__excerpt {
 	color: var(--text-muted);
+	font-size: var(--step--1);
 	max-width: var(--measure);
 }
 
 .post-card__more {
+	margin-top: var(--space-3xs);
 	font-family: var(--font-display);
 	font-size: var(--step--1);
 	color: var(--accent);

@@ -102,8 +102,15 @@
 	overflow-x: auto;
 }
 
-/* The brewery pages are a stack of logo links — give them room to breathe
-   and stop the light-on-light logos from disappearing on dark skins. */
+/* The brewery page is a stack of logo links. Several are knockout artwork
+   (white on transparent), so in light mode they need a dark chip behind them
+   or they vanish into the page. */
 .prose p > a > img {
 	margin-block: var(--space-2xs);
+}
+
+[data-theme="light"] .prose p > a > img {
+	padding: var(--space-2xs) var(--space-s);
+	background: #1a1a1a;
+	border-radius: var(--radius);
 }

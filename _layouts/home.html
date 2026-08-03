@@ -16,7 +16,14 @@ layout: default
 			</div>
 		</div>
 	</div>
-	{% include d20.svg class="hero__die" %}
+	<img
+		class="hero__die"
+		src="{{ '/assets/img/d20-mark.png' | relative_url }}"
+		alt=""
+		aria-hidden="true"
+		width="512"
+		height="512"
+	/>
 </section>
 
 <main class="main" id="main">
@@ -43,24 +50,26 @@ layout: default
 				</div>
 				{%- endif -%}
 
-				<p class="post-card__meta">
-					<time datetime="{{ post.date | date_to_xmlschema }}">
-						{{ post.date | date: '%B %-d, %Y' }}
-					</time>
-					{%- if post.author -%}
-					<span class="dot">{{ post.author }}</span>
-					{%- endif -%}
-				</p>
+				<div class="post-card__body">
+					<p class="post-card__meta">
+						<time datetime="{{ post.date | date_to_xmlschema }}">
+							{{ post.date | date: '%b %-d, %Y' }}
+						</time>
+						{%- if post.author -%}
+						<span class="dot">{{ post.author }}</span>
+						{%- endif -%}
+					</p>
 
-				<h3 class="post-card__title">
-					<a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-				</h3>
+					<h3 class="post-card__title">
+						<a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+					</h3>
 
-				<p class="post-card__excerpt">
-					{{ post.description | default: post.excerpt | strip_html | truncate: 220 }}
-				</p>
+					<p class="post-card__excerpt">
+						{{ post.description | default: post.excerpt | strip_html | truncate: 130 }}
+					</p>
 
-				<p class="post-card__more" aria-hidden="true">Read more &rarr;</p>
+					<p class="post-card__more" aria-hidden="true">Read more &rarr;</p>
+				</div>
 			</li>
 			{%- endfor -%}
 		</ul>

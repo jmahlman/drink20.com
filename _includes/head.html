@@ -18,7 +18,7 @@
 	{%- if page.image -%}
 		{%- assign page_image = page.image | prepend: '/assets/img/' | prepend: site.url -%}
 	{%- else -%}
-		{%- assign page_image = '/assets/img/drink20.png' | prepend: site.url -%}
+		{%- assign page_image = '/assets/img/og-default.png' | prepend: site.url -%}
 	{%- endif -%}
 
 	<title>{{ page_title }}</title>
@@ -44,31 +44,29 @@
 
 	<!-- Icons -->
 	<link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico" />
-	<link rel="apple-touch-icon" href="/assets/img/drink20.png" />
+	<link rel="apple-touch-icon" href="/assets/img/d20-mark.png" />
 	<meta name="theme-color" content="#10131a" />
 
 	<!-- Feed -->
 	<link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ '/feed.xml' | prepend: site.url }}" />
 
-	<!-- Fonts: one request covering every skin's pairing. Trim this down to the
-	     chosen skin's families before shipping. -->
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Fraunces:opsz,wght@9..144,400;9..144,700&family=Inter:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" />
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" />
 
 	<link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}" />
 
-	{%- comment -%} Apply the skin before first paint so switching never flashes. {%- endcomment -%}
+	{%- comment -%}
+	Apply the saved mode before first paint so light-mode users never get a
+	flash of dark. Dark is the default when nothing has been chosen.
+	{%- endcomment -%}
 	<script>
 		(function () {
-			var fallback = {{ site.default_skin | default: 'midnight' | jsonify }};
-			var skin = fallback;
 			try {
-				var q = new URLSearchParams(window.location.search).get("skin");
-				skin = q || localStorage.getItem("d20-skin") || fallback;
-				if (q) localStorage.setItem("d20-skin", q);
+				if (localStorage.getItem("d20-theme") === "light") {
+					document.documentElement.setAttribute("data-theme", "light");
+				}
 			} catch (e) {}
-			document.documentElement.setAttribute("data-skin", skin);
 		})();
 	</script>
 

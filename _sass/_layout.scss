@@ -40,22 +40,70 @@
 }
 
 .brand__mark {
-	width: 2.1rem;
-	height: 2.1rem;
+	width: 2.3rem;
+	height: 2.3rem;
 	flex: none;
-	color: var(--accent);
-	/* Stroke widths are in viewBox units, so each usage sets its own to keep
-	   the optical weight consistent across sizes. */
-	stroke-width: 6;
 	transition: transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* 72° is one face of a d20 — the die lands back on itself. */
 .brand:hover .brand__mark {
 	transform: rotate(72deg);
 }
 
 .brand__text .brand__accent {
 	color: var(--accent);
+}
+
+.masthead__actions {
+	display: flex;
+	align-items: center;
+	gap: var(--space-s);
+}
+
+/* Theme toggle ----------------------------------------------------------- */
+
+.theme-toggle {
+	display: grid;
+	place-items: center;
+	width: 2.4rem;
+	height: 2.4rem;
+	flex: none;
+	padding: 0;
+	background: transparent;
+	border: 1px solid var(--border-strong);
+	border-radius: 999px;
+	color: var(--text-muted);
+	cursor: pointer;
+	transition: color var(--transition), border-color var(--transition);
+}
+
+.theme-toggle:hover {
+	color: var(--accent);
+	border-color: var(--accent);
+}
+
+.theme-toggle__icon {
+	grid-area: 1 / 1;
+	width: 1.05rem;
+	height: 1.05rem;
+}
+
+/* Show the mode you'd switch *to*. */
+.theme-toggle__icon--sun {
+	display: block;
+}
+
+.theme-toggle__icon--moon {
+	display: none;
+}
+
+[data-theme="light"] .theme-toggle__icon--sun {
+	display: none;
+}
+
+[data-theme="light"] .theme-toggle__icon--moon {
+	display: block;
 }
 
 /* Navigation ------------------------------------------------------------- */
@@ -206,6 +254,15 @@
 .hero__title {
 	font-size: var(--step-4);
 	margin-bottom: var(--space-s);
+	background: linear-gradient(
+		92deg,
+		var(--text) 30%,
+		var(--accent) 75%,
+		var(--highlight)
+	);
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
 }
 
 .hero__tagline {
@@ -221,19 +278,18 @@
 	gap: var(--space-2xs);
 }
 
-/* The d20 that bleeds off the corner — the one piece of the old site worth
-   keeping. Decorative only, so it's hidden from assistive tech. */
+/* The d20 bleeding off the corner, carried over from the old site.
+   Decorative only, so it's hidden from assistive tech. */
 .hero__die {
 	position: absolute;
 	top: 50%;
-	right: -6rem;
-	width: 30rem;
+	right: -5rem;
+	width: 28rem;
 	max-width: 55%;
-	color: var(--accent);
-	stroke-width: 1.6;
-	opacity: 0.16;
+	opacity: var(--die-opacity);
 	transform: translateY(-50%) rotate(-12deg);
 	pointer-events: none;
+	user-select: none;
 }
 
 @media (max-width: 45rem) {
@@ -242,8 +298,7 @@
 	}
 
 	.hero__die {
-		right: -8rem;
-		opacity: 0.1;
+		right: -7rem;
 	}
 }
 

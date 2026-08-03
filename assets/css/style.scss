@@ -2,9 +2,10 @@
 # Front matter is required so Jekyll runs this through Sass.
 ---
 
-// Drink20 theme — see _sass/_tokens.scss for the skin definitions.
-// Fonts are loaded via a preconnected <link> in _includes/head.html rather
-// than @import so they don't block the stylesheet.
+// Drink20 theme.
+// Colour/spacing/type tokens live in _sass/_tokens.scss — dark by default,
+// with a light mode under [data-theme="light"]. Fonts are loaded via a
+// preconnected <link> in _includes/head.html so they don't block this file.
 
 @import "tokens";
 @import "base";
@@ -12,5 +13,3 @@
 @import "components";
 @import "prose";
 @import "syntax";
-@import "skins";
-@import "skin-switcher";
