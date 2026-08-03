@@ -1,12 +1,16 @@
 <header class="masthead">
 	<div class="container masthead__inner">
 		<a class="brand" href="{{ '/' | relative_url }}">
+			{%- comment -%}
+			The blank die reads cleaner at 37px — the wordmark beside it already
+			says "20", so the numeral in the icon is just noise at this size.
+			{%- endcomment -%}
 			<img
 				class="brand__mark"
-				src="{{ '/assets/img/d20-mark.png' | relative_url }}"
+				src="{{ '/assets/img/d20-mark-blank.png' | relative_url }}"
 				alt=""
-				width="512"
-				height="512"
+				width="1024"
+				height="1024"
 			/>
 			<span class="brand__text">Drink<span class="brand__accent">20</span> Philly</span>
 		</a>
