@@ -68,6 +68,10 @@
 	/* Hero headline: brand red on dark, near-black on light. */
 	--hero-title: var(--accent);
 
+	/* Easter-egg dice: red body, heavy black linework, matching the logo die. */
+	--d20-face: #d3352f;
+	--d20-edge: #0d0d0d;
+
 	/* The d20 watermark is a fixed-colour PNG, so it's dialled in per mode. */
 	--die-opacity: 0.14;
 
