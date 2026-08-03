@@ -1,0 +1,159 @@
+/* ===========================================================================
+   DESIGN TOKENS
+   Every skin is just a different set of custom properties on <html>.
+   The rest of the stylesheet never hardcodes a colour or a font family, so
+   adding a fourth skin means adding one block here and nothing else.
+   =========================================================================== */
+
+:root {
+	/* Shared, skin-independent scale */
+	--step--1: clamp(0.83rem, 0.8rem + 0.15vw, 0.92rem);
+	--step-0: clamp(1rem, 0.96rem + 0.2vw, 1.12rem);
+	--step-1: clamp(1.2rem, 1.12rem + 0.4vw, 1.45rem);
+	--step-2: clamp(1.45rem, 1.3rem + 0.75vw, 1.95rem);
+	--step-3: clamp(1.75rem, 1.5rem + 1.25vw, 2.6rem);
+	--step-4: clamp(2.1rem, 1.65rem + 2.25vw, 3.6rem);
+
+	--space-3xs: 0.25rem;
+	--space-2xs: 0.5rem;
+	--space-xs: 0.75rem;
+	--space-s: 1rem;
+	--space-m: 1.5rem;
+	--space-l: 2.25rem;
+	--space-xl: 3.5rem;
+	--space-2xl: 5rem;
+
+	--measure: 68ch;
+	--container: 72rem;
+	--container-narrow: 44rem;
+
+	--transition: 160ms ease;
+}
+
+/* ---------------------------------------------------------------------------
+   SKIN 1 — "parchment"
+   Tavern notice-board. Warm paper, iron-gall ink, wax-seal red.
+   --------------------------------------------------------------------------- */
+[data-skin="parchment"] {
+	--bg: #f2e9db;
+	--bg-alt: #e9dcc7;
+	--surface: #fbf6ec;
+	--surface-2: #f6eddd;
+	--text: #2c1e12;
+	--text-muted: #6d5741;
+	--accent: #9d2f1c;
+	--accent-hover: #7d2314;
+	--accent-contrast: #fbf6ec;
+	--highlight: #b4832b;
+	--border: #d6c3a4;
+	--border-strong: #b9a17c;
+
+	--font-display: "Cinzel", Georgia, serif;
+	--font-body: "EB Garamond", Georgia, "Times New Roman", serif;
+	--display-weight: 700;
+	--display-spacing: 0.02em;
+	--display-transform: none;
+	--body-size-adjust: 1.06;
+
+	--radius: 3px;
+	--radius-lg: 4px;
+	--shadow: 0 1px 2px rgba(44, 30, 18, 0.12);
+	--shadow-lg: 0 12px 28px -18px rgba(44, 30, 18, 0.55);
+
+	--header-bg: var(--bg);
+	--header-border: var(--border-strong);
+	--hero-bg: var(--bg-alt);
+	--footer-bg: var(--bg-alt);
+
+	--page-texture: radial-gradient(
+			circle at 15% 12%,
+			rgba(180, 131, 43, 0.09),
+			transparent 45%
+		),
+		radial-gradient(circle at 85% 78%, rgba(157, 47, 28, 0.07), transparent 42%);
+}
+
+/* ---------------------------------------------------------------------------
+   SKIN 2 — "midnight"
+   After-hours table. Dark slate, dice-red accent, amber for the highlights.
+   --------------------------------------------------------------------------- */
+[data-skin="midnight"] {
+	--bg: #10131a;
+	--bg-alt: #161a23;
+	--surface: #1a1f2a;
+	--surface-2: #212736;
+	--text: #e9eaee;
+	--text-muted: #98a1b3;
+	--accent: #ef5350;
+	--accent-hover: #ff6b68;
+	--accent-contrast: #10131a;
+	--highlight: #f2b134;
+	--border: #272e3c;
+	--border-strong: #36405288;
+
+	--font-display: "Space Grotesk", "Helvetica Neue", sans-serif;
+	--font-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+	--display-weight: 700;
+	--display-spacing: -0.02em;
+	--display-transform: none;
+	--body-size-adjust: 1;
+
+	--radius: 10px;
+	--radius-lg: 16px;
+	--shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+	--shadow-lg: 0 24px 48px -28px rgba(0, 0, 0, 0.9);
+
+	--header-bg: rgba(16, 19, 26, 0.82);
+	--header-border: var(--border);
+	--hero-bg: var(--bg-alt);
+	--footer-bg: var(--bg-alt);
+
+	--page-texture: radial-gradient(
+			ellipse 70% 50% at 50% -10%,
+			rgba(239, 83, 80, 0.14),
+			transparent 70%
+		),
+		radial-gradient(
+			ellipse 60% 40% at 90% 8%,
+			rgba(242, 177, 52, 0.08),
+			transparent 65%
+		);
+}
+
+/* ---------------------------------------------------------------------------
+   SKIN 3 — "press"
+   Bright modern editorial. Lots of air, big type, card grid.
+   --------------------------------------------------------------------------- */
+[data-skin="press"] {
+	--bg: #ffffff;
+	--bg-alt: #f5f4f0;
+	--surface: #ffffff;
+	--surface-2: #faf9f6;
+	--text: #14140f;
+	--text-muted: #5e5c54;
+	--accent: #c93c38;
+	--accent-hover: #a82e2b;
+	--accent-contrast: #ffffff;
+	--highlight: #1c6e5c;
+	--border: #e3e1d9;
+	--border-strong: #c9c6bb;
+
+	--font-display: "Fraunces", Georgia, serif;
+	--font-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+	--display-weight: 700;
+	--display-spacing: -0.015em;
+	--display-transform: none;
+	--body-size-adjust: 1;
+
+	--radius: 8px;
+	--radius-lg: 18px;
+	--shadow: 0 1px 2px rgba(20, 20, 15, 0.06);
+	--shadow-lg: 0 20px 40px -28px rgba(20, 20, 15, 0.35);
+
+	--header-bg: rgba(255, 255, 255, 0.85);
+	--header-border: var(--border);
+	--hero-bg: var(--bg-alt);
+	--footer-bg: var(--bg-alt);
+
+	--page-texture: none;
+}

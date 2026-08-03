@@ -1,9 +1,7 @@
 ---
-layout: default
+layout: page
 title: About Drink20
 ---
-
-## About Us
 
 Hello! We're John and Alessa, a couple of nerds that have many many years of experience running and playing various tabletop games. The goal of Drink20 is to schedule and run tabletop gaming events in bars and breweries in and around the Philadelphia region.
 

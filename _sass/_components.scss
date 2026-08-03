@@ -1,0 +1,334 @@
+/* ===========================================================================
+   COMPONENTS — buttons, post cards, pagination, post nav, forms, tables
+   =========================================================================== */
+
+/* Buttons ---------------------------------------------------------------- */
+
+.button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-3xs);
+	padding: 0.7em 1.4em;
+	border: 1px solid var(--accent);
+	border-radius: var(--radius);
+	background: var(--accent);
+	color: var(--accent-contrast);
+	font-family: var(--font-display);
+	font-size: var(--step--1);
+	font-weight: var(--display-weight);
+	letter-spacing: 0.03em;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background var(--transition), color var(--transition),
+		border-color var(--transition), transform var(--transition);
+}
+
+.button:hover {
+	background: var(--accent-hover);
+	border-color: var(--accent-hover);
+	color: var(--accent-contrast);
+	transform: translateY(-1px);
+}
+
+.button--ghost {
+	background: transparent;
+	color: var(--text);
+	border-color: var(--border-strong);
+}
+
+.button--ghost:hover {
+	background: transparent;
+	color: var(--accent);
+	border-color: var(--accent);
+}
+
+/* Post list -------------------------------------------------------------- */
+
+.post-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: grid;
+	gap: var(--space-l);
+}
+
+.post-card {
+	position: relative;
+	display: grid;
+	gap: var(--space-2xs);
+	padding-bottom: var(--space-l);
+	border-bottom: 1px solid var(--border);
+}
+
+.post-list > .post-card:last-child {
+	border-bottom: 0;
+	padding-bottom: 0;
+}
+
+.post-card__media {
+	order: -1;
+	overflow: hidden;
+	border-radius: var(--radius-lg);
+	border: 1px solid var(--border);
+	background: var(--surface-2);
+	aspect-ratio: 16 / 9;
+	margin-bottom: var(--space-2xs);
+}
+
+.post-card__media img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	transition: transform 500ms ease;
+}
+
+.post-card:hover .post-card__media img {
+	transform: scale(1.03);
+}
+
+.post-card__meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--space-2xs);
+	font-size: var(--step--1);
+	color: var(--text-muted);
+}
+
+.post-card__meta .dot::before {
+	content: "•";
+	margin-right: var(--space-2xs);
+	opacity: 0.6;
+}
+
+.post-card__title {
+	font-size: var(--step-2);
+}
+
+.post-card__title a {
+	color: var(--text);
+	text-decoration: none;
+}
+
+.post-card__title a:hover {
+	color: var(--accent);
+}
+
+/* Whole-card click target without nesting interactive elements. */
+.post-card__title a::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+}
+
+.post-card__excerpt {
+	color: var(--text-muted);
+	max-width: var(--measure);
+}
+
+.post-card__more {
+	font-family: var(--font-display);
+	font-size: var(--step--1);
+	color: var(--accent);
+}
+
+/* Page + post headers ---------------------------------------------------- */
+
+.page-header {
+	margin-bottom: var(--space-l);
+	padding-bottom: var(--space-m);
+	border-bottom: 1px solid var(--border);
+}
+
+.page-header__title {
+	font-size: var(--step-3);
+}
+
+.post-header {
+	margin-bottom: var(--space-l);
+}
+
+.post-header__title {
+	font-size: var(--step-4);
+	margin-block: var(--space-2xs) var(--space-s);
+}
+
+.post-header__meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-2xs);
+	font-size: var(--step--1);
+	color: var(--text-muted);
+}
+
+.post-hero {
+	margin-bottom: var(--space-l);
+	border-radius: var(--radius-lg);
+	overflow: hidden;
+	border: 1px solid var(--border);
+}
+
+.post-hero img {
+	width: 100%;
+}
+
+/* Prev / next ------------------------------------------------------------ */
+
+.post-nav {
+	display: grid;
+	gap: var(--space-s);
+	margin-top: var(--space-2xl);
+	padding-top: var(--space-l);
+	border-top: 1px solid var(--border);
+}
+
+@media (min-width: 40rem) {
+	.post-nav {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+
+.post-nav__link {
+	display: grid;
+	gap: var(--space-3xs);
+	padding: var(--space-s);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-lg);
+	background: var(--surface);
+	text-decoration: none;
+	transition: border-color var(--transition), transform var(--transition);
+}
+
+.post-nav__link:hover {
+	border-color: var(--accent);
+	transform: translateY(-2px);
+}
+
+.post-nav__link--next {
+	text-align: right;
+}
+
+.post-nav__dir {
+	font-size: var(--step--1);
+	color: var(--text-muted);
+	font-family: var(--font-display);
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.post-nav__title {
+	color: var(--text);
+	font-family: var(--font-display);
+	font-size: var(--step-0);
+}
+
+.post-nav__link:hover .post-nav__title {
+	color: var(--accent);
+}
+
+/* Pagination ------------------------------------------------------------- */
+
+.pagination {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-s);
+	margin-top: var(--space-xl);
+	padding-top: var(--space-m);
+	border-top: 1px solid var(--border);
+}
+
+.pagination__count {
+	font-size: var(--step--1);
+	color: var(--text-muted);
+}
+
+/* Forms ------------------------------------------------------------------ */
+
+.form-group,
+form p {
+	margin-bottom: var(--space-s);
+}
+
+label {
+	display: block;
+	margin-bottom: var(--space-3xs);
+	font-size: var(--step--1);
+	font-family: var(--font-display);
+	color: var(--text);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="url"],
+input[type="search"],
+input[type="tel"],
+textarea,
+select {
+	width: 100%;
+	padding: 0.65em 0.8em;
+	background: var(--surface);
+	border: 1px solid var(--border-strong);
+	border-radius: var(--radius);
+	color: var(--text);
+	transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+	outline: none;
+	border-color: var(--accent);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+textarea {
+	min-height: 9rem;
+	resize: vertical;
+}
+
+input[type="submit"],
+button[type="submit"] {
+	width: auto;
+	padding: 0.7em 1.6em;
+	background: var(--accent);
+	border: 1px solid var(--accent);
+	border-radius: var(--radius);
+	color: var(--accent-contrast);
+	font-family: var(--font-display);
+	font-weight: var(--display-weight);
+	cursor: pointer;
+	transition: background var(--transition);
+}
+
+input[type="submit"]:hover,
+button[type="submit"]:hover {
+	background: var(--accent-hover);
+}
+
+/* Tables ----------------------------------------------------------------- */
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-block: var(--space-m);
+	font-size: var(--step--1);
+}
+
+th,
+td {
+	padding: var(--space-2xs) var(--space-xs);
+	border-bottom: 1px solid var(--border);
+	text-align: left;
+}
+
+th {
+	font-family: var(--font-display);
+	background: var(--surface-2);
+}
+
+/* Wide content shouldn't force the page to scroll sideways. */
+.table-scroll {
+	overflow-x: auto;
+}

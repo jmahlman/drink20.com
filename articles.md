@@ -1,17 +1,24 @@
 ---
-layout: default
-title: Your New Jekyll Site
+layout: page
+title: Archive
+description: Every Drink20 post, newest first.
 ---
 
-<div id="articles">
-  <h1>Articles</h1>
-  <ul class="posts noList">
-    {%- for post in site.posts -%}
-      <li>
-      	<span class="date">{{ post.date | date_to_string }}</span>
-      	<h3><a href="{{ post.url }}">{{ post.title }}</a></h3>
-      	<p class="description">{%- if post.description -%}{{ post.description  | strip_html | strip_newlines | truncate: 120 }}{%- else -%}{{ post.content | strip_html | strip_newlines | truncate: 120 }}{%- endif -%}</p>
-      </li>
-    {%- endfor -%}
-  </ul>
-</div>
+<ul class="post-list">
+	{%- for post in site.posts -%}
+	<li class="post-card">
+		<p class="post-card__meta">
+			<time datetime="{{ post.date | date_to_xmlschema }}">
+				{{ post.date | date: '%B %-d, %Y' }}
+			</time>
+			{%- if post.author -%}<span class="dot">{{ post.author }}</span>{%- endif -%}
+		</p>
+		<h2 class="post-card__title">
+			<a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+		</h2>
+		<p class="post-card__excerpt">
+			{{ post.description | default: post.excerpt | strip_html | truncate: 160 }}
+		</p>
+	</li>
+	{%- endfor -%}
+</ul>

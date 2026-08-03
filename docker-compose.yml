@@ -1,0 +1,15 @@
+services:
+  jekyll:
+    build: .
+    ports:
+      - "4000:4000"
+    volumes:
+      - .:/site
+      # Keep the container's built _site/.jekyll-cache off the host mount so a
+      # stale local build can't leak in.
+      - site_build:/site/_site
+      - jekyll_cache:/site/.jekyll-cache
+
+volumes:
+  site_build:
+  jekyll_cache:

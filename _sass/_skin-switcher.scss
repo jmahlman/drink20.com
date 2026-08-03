@@ -1,0 +1,61 @@
+/* ===========================================================================
+   SKIN SWITCHER — preview-only widget
+   Rendered only when `skin_switcher: true` in _config.yml. Turn that off (or
+   delete this file plus the include) once a skin is chosen.
+   =========================================================================== */
+
+.skin-switcher {
+	position: fixed;
+	right: var(--space-s);
+	bottom: var(--space-s);
+	z-index: 90;
+	display: flex;
+	align-items: center;
+	gap: var(--space-3xs);
+	padding: var(--space-3xs);
+	background: var(--surface);
+	border: 1px solid var(--border-strong);
+	border-radius: 999px;
+	box-shadow: var(--shadow-lg);
+	font-family: var(--font-body);
+}
+
+.skin-switcher__label {
+	padding-inline: var(--space-2xs);
+	font-size: 0.72rem;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var(--text-muted);
+}
+
+.skin-switcher__button {
+	padding: 0.35rem 0.8rem;
+	background: transparent;
+	border: 0;
+	border-radius: 999px;
+	color: var(--text-muted);
+	font-size: 0.78rem;
+	cursor: pointer;
+	transition: background var(--transition), color var(--transition);
+}
+
+.skin-switcher__button:hover {
+	color: var(--text);
+}
+
+.skin-switcher__button[aria-pressed="true"] {
+	background: var(--accent);
+	color: var(--accent-contrast);
+}
+
+@media (max-width: 30rem) {
+	.skin-switcher__label {
+		display: none;
+	}
+}
+
+@media print {
+	.skin-switcher {
+		display: none;
+	}
+}

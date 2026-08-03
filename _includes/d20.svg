@@ -1,0 +1,19 @@
+<svg
+	class="{{ include.class }}"
+	viewBox="0 0 100 100"
+	fill="none"
+	stroke="currentColor"
+	stroke-linejoin="round"
+	stroke-linecap="round"
+	aria-hidden="true"
+	focusable="false"
+>
+	<!-- Outer silhouette: an icosahedron seen face-on is a hexagon. -->
+	<path d="M50 2 91.6 26 91.6 74 50 98 8.4 74 8.4 26Z" />
+	<!-- The front face. -->
+	<path d="M50 28 30.95 61 69.05 61Z" />
+	<!-- Edges running from the front face out to the silhouette. -->
+	<path
+		d="M50 28V2M30.95 61 8.4 74M69.05 61 91.6 74M91.6 26 50 28M91.6 26 69.05 61M8.4 26 50 28M8.4 26 30.95 61M50 98 30.95 61M50 98 69.05 61"
+	/>
+</svg>

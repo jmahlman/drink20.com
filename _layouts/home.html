@@ -1,0 +1,86 @@
+---
+layout: default
+---
+<section class="hero">
+	<div class="container">
+		<div class="hero__inner">
+			<p class="eyebrow">Tabletop nights in and around Philadelphia</p>
+			<h1 class="hero__title">Take a Drink and Roll Initiative</h1>
+			<p class="hero__tagline">
+				Free, friendly tabletop games hosted at local breweries. No experience
+				needed — just show up, grab a pint, and roll.
+			</p>
+			<div class="hero__actions">
+				<a class="button" href="{{ '/breweries' | relative_url }}">Where we play</a>
+				<a class="button button--ghost" href="{{ '/FAQ' | relative_url }}">New here? Start with the FAQ</a>
+			</div>
+		</div>
+	</div>
+	{% include d20.svg class="hero__die" %}
+</section>
+
+<main class="main" id="main">
+	<div class="container">
+		<div class="section__head">
+			<h2 class="section__title">Latest news</h2>
+			{%- if paginator.total_pages > 1 -%}
+			<p class="pagination__count">
+				Page {{ paginator.page }} of {{ paginator.total_pages }}
+			</p>
+			{%- endif -%}
+		</div>
+
+		<ul class="post-list">
+			{%- for post in paginator.posts -%}
+			<li class="post-card">
+				{%- if post.image -%}
+				<div class="post-card__media">
+					<img
+						src="{{ post.image | prepend: '/assets/img/' | relative_url }}"
+						alt=""
+						loading="lazy"
+					/>
+				</div>
+				{%- endif -%}
+
+				<p class="post-card__meta">
+					<time datetime="{{ post.date | date_to_xmlschema }}">
+						{{ post.date | date: '%B %-d, %Y' }}
+					</time>
+					{%- if post.author -%}
+					<span class="dot">{{ post.author }}</span>
+					{%- endif -%}
+				</p>
+
+				<h3 class="post-card__title">
+					<a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+				</h3>
+
+				<p class="post-card__excerpt">
+					{{ post.description | default: post.excerpt | strip_html | truncate: 220 }}
+				</p>
+
+				<p class="post-card__more" aria-hidden="true">Read more &rarr;</p>
+			</li>
+			{%- endfor -%}
+		</ul>
+
+		{%- if paginator.total_pages > 1 -%}
+		<nav class="pagination" aria-label="Pagination">
+			{%- if paginator.previous_page -%}
+			<a class="button button--ghost" href="{{ paginator.previous_page_path | relative_url }}">
+				&larr; Newer posts
+			</a>
+			{%- else -%}
+			<span></span>
+			{%- endif -%}
+
+			{%- if paginator.next_page -%}
+			<a class="button button--ghost" href="{{ paginator.next_page_path | relative_url }}">
+				Older posts &rarr;
+			</a>
+			{%- endif -%}
+		</nav>
+		{%- endif -%}
+	</div>
+</main>
