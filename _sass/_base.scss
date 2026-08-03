@@ -176,3 +176,14 @@ hr {
 	text-transform: uppercase;
 	color: var(--text-muted);
 }
+
+/* The tagline, set in the brand face so it reads as part of the identity
+   rather than as another line of description. Weight 700 is deliberate — the
+   masthead already downloads that cut, so this costs no extra request.
+   `text-transform` is inherited from .eyebrow: Copperplate is caps-only so
+   it's a no-op here, but it keeps the fallback consistent if the font fails. */
+.eyebrow--brand {
+	font-family: var(--font-brand);
+	font-weight: 700;
+	letter-spacing: 0.12em;
+}
