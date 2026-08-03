@@ -98,8 +98,93 @@
 	text-underline-offset: 3px;
 }
 
+/* --- Natural 20 ---------------------------------------------------------- */
+
+/* Dim the whole page so the crit owns the screen. Sits behind the dice via a
+   negative z-index, which stays inside the overlay's own stacking context. */
+.dice-overlay--crit::before {
+	content: "";
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	background: radial-gradient(
+		ellipse at center,
+		rgba(0, 0, 0, 0.62),
+		rgba(0, 0, 0, 0.88)
+	);
+	animation: crit-dim 420ms ease both;
+}
+
+@keyframes crit-dim {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+/* Overriding --d20-face here re-mixes every face's background at once, so the
+   whole die turns gold from one declaration. The transition on the face body
+   below makes it a glow-up rather than a hard swap. */
+.dice-drop--crit {
+	--d20-face: var(--highlight);
+	filter: drop-shadow(0 0 26px var(--highlight))
+		drop-shadow(0 18px 30px rgba(0, 0, 0, 0.5));
+	transition: filter 420ms ease;
+}
+
+.die__face::before {
+	transition: background 380ms ease;
+}
+
+.crit-banner {
+	position: absolute;
+	left: 0;
+	right: 0;
+	/* Anchored to the die rather than the viewport — a single die always lands
+	   dead centre, so this sits just above it at any window height. */
+	top: calc(50% - 190px);
+	margin: 0;
+	text-align: center;
+	isolation: isolate;
+	font-family: var(--font-brand);
+	font-weight: 700;
+	font-size: clamp(1.6rem, 6vw, 3.2rem);
+	letter-spacing: 0.14em;
+	color: var(--highlight);
+	text-shadow: 0 0 24px color-mix(in srgb, var(--highlight) 60%, transparent),
+		0 2px 0 var(--d20-edge);
+	user-select: none;
+}
+
+/* Thrown from the centre, so the container is a zero-size anchor point. */
+.cheer {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 0;
+	height: 0;
+}
+
+.cheer__bit {
+	position: absolute;
+	left: 0;
+	top: 0;
+	display: block;
+	line-height: 1;
+	/* Emoji only — no glyph fallback worth inheriting from the brand face. */
+	font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji",
+		sans-serif;
+	user-select: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.dice-drop {
 		filter: none;
+	}
+
+	.dice-drop--crit {
+		filter: drop-shadow(0 0 20px var(--highlight));
 	}
 }

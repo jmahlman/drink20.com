@@ -364,6 +364,83 @@ function makeDie(sides, resultIndex) {
 	};
 }
 
+/* --- critical hit -------------------------------------------------------- */
+
+const CHEER = ["🎉", "🎊", "🎲", "🍻", "✨", "⭐️", "🔥", "💥", "🐉", "⚔️"];
+
+/*
+ * Fires only on a single d20 showing 20. Recolouring works by overriding
+ * --d20-face on the die: every face's background is a color-mix against that
+ * property, so all twenty turn gold from one declaration.
+ */
+function celebrate(overlay, drop, reduced) {
+	overlay.classList.add("dice-overlay--crit");
+	drop.classList.add("dice-drop--crit");
+
+	const banner = document.createElement("p");
+	banner.className = "crit-banner";
+	banner.textContent = "Natural 20";
+	overlay.appendChild(banner);
+
+	if (reduced) return;
+
+	banner.animate(
+		[
+			{ transform: "scale(.6) rotate(-4deg)", opacity: 0 },
+			{ transform: "scale(1.08) rotate(1deg)", opacity: 1, offset: 0.55 },
+			{ transform: "scale(1) rotate(0deg)", opacity: 1 },
+		],
+		{ duration: 620, easing: "cubic-bezier(.2,1.5,.4,1)", fill: "both" }
+	);
+
+	const burst = document.createElement("div");
+	burst.className = "cheer";
+	overlay.appendChild(burst);
+
+	// Throw far enough to cross the viewport rather than puff around the die.
+	const reach = Math.max(window.innerWidth, window.innerHeight) * 0.55;
+
+	for (let i = 0; i < 38; i += 1) {
+		const piece = document.createElement("span");
+		piece.className = "cheer__bit";
+		piece.textContent = CHEER[Math.floor(Math.random() * CHEER.length)];
+		piece.style.fontSize = `${20 + Math.random() * 26}px`;
+		burst.appendChild(piece);
+
+		const angle = Math.random() * Math.PI * 2;
+		const dist = reach * (0.35 + Math.random() * 0.65);
+		const x = Math.cos(angle) * dist;
+		const y = Math.sin(angle) * dist;
+		const spin = (Math.random() - 0.5) * 900;
+
+		piece.animate(
+			[
+				{ transform: "translate3d(-50%,-50%,0) scale(.2) rotate(0deg)", opacity: 0 },
+				{
+					transform: `translate3d(calc(-50% + ${x * 0.55}px), calc(-50% + ${
+						y * 0.55 - 40
+					}px), 0) scale(1.1) rotate(${spin * 0.5}deg)`,
+					opacity: 1,
+					offset: 0.35,
+				},
+				{
+					// Gravity takes over once the throw runs out of momentum.
+					transform: `translate3d(calc(-50% + ${x}px), calc(-50% + ${
+						y + window.innerHeight * 0.45
+					}px), 0) scale(.85) rotate(${spin}deg)`,
+					opacity: 0,
+				},
+			],
+			{
+				duration: 1500 + Math.random() * 900,
+				delay: Math.random() * 260,
+				easing: "cubic-bezier(.12,.6,.35,1)",
+				fill: "both",
+			}
+		);
+	}
+}
+
 /* --- the roll ------------------------------------------------------------ */
 
 export const MAX_DICE = 8;
@@ -440,6 +517,9 @@ export function roll(count = 1, sides = 20) {
 	const throwX = window.innerWidth * 0.12;
 
 	const results = [];
+	// Populated below so the celebration can wait for the die to finish rolling.
+	let critDrop = null;
+	let critFall = null;
 
 	for (let i = 0; i < n; i += 1) {
 		const index = Math.floor(Math.random() * sides);
@@ -458,6 +538,10 @@ export function roll(count = 1, sides = 20) {
 		drop.style.marginTop = `${-RADIUS}px`;
 		drop.appendChild(die);
 		tray.appendChild(drop);
+
+		// A natural 20 only counts on a single d20 — "20" on one of four dice
+		// isn't a crit, it's just arithmetic.
+		if (n === 1 && sides === 20 && value === 20) critDrop = drop;
 
 		if (reduced) {
 			die.style.transform = settle;
@@ -478,7 +562,7 @@ export function roll(count = 1, sides = 20) {
 		// Vary the flight time so they don't land in lockstep.
 		const duration = 1450 + Math.random() * 350;
 
-		drop.animate(
+		const fall = drop.animate(
 			[
 				{ transform: `translate3d(${fromX}px, ${fromY}px, 0) scale(.35)`, opacity: 0 },
 				{ transform: `translate3d(${fromX * 0.45}px, ${fromY * 0.3 - 90}px, 0) scale(.9)`, opacity: 1, offset: 0.35 },
@@ -498,6 +582,8 @@ export function roll(count = 1, sides = 20) {
 			],
 			{ duration, delay, easing: "cubic-bezier(.22,.68,.3,1)", fill: "both" }
 		);
+
+		if (drop === critDrop) critFall = fall;
 	}
 
 	// Screen readers get the outcome without the theatre.
@@ -505,13 +591,25 @@ export function roll(count = 1, sides = 20) {
 	const said = document.createElement("p");
 	said.className = "visually-hidden";
 	said.setAttribute("role", "status");
-	said.textContent =
-		n === 1
-			? `Rolled d${sides}: ${results[0]}.`
-			: `Rolled ${n}d${sides}: ${results.join(", ")}. Total ${total}.`;
+	said.textContent = critDrop
+		? "Rolled d20: 20. Natural twenty!"
+		: n === 1
+		? `Rolled d${sides}: ${results[0]}.`
+		: `Rolled ${n}d${sides}: ${results.join(", ")}. Total ${total}.`;
 	overlay.appendChild(said);
 
 	document.body.appendChild(overlay);
+
+	// Hold the gold until the die has actually stopped rolling — turning it mid
+	// tumble gives the result away before the die has landed.
+	if (critDrop) {
+		if (reduced || !critFall) celebrate(overlay, critDrop, true);
+		else {
+			critFall.finished
+				.then(() => celebrate(overlay, critDrop, false))
+				.catch(() => {});
+		}
+	}
 
 	const dismiss = () => {
 		if (!overlay.isConnected) return;
@@ -531,5 +629,6 @@ export function roll(count = 1, sides = 20) {
 
 	document.addEventListener("keydown", onKey);
 	overlay.addEventListener("click", dismiss);
-	setTimeout(dismiss, reduced ? 3200 : 5200);
+	// A crit earns a longer look.
+	setTimeout(dismiss, reduced ? 3200 : critDrop ? 7200 : 5200);
 }
