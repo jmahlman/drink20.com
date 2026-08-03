@@ -150,8 +150,12 @@
 	isolation: isolate;
 	font-family: var(--font-brand);
 	font-weight: 700;
-	font-size: clamp(1.6rem, 6vw, 3.2rem);
-	letter-spacing: 0.14em;
+	/* Sized for the longest label ("Critical success!") — Copperplate is all
+	   caps and generously tracked, so it eats width fast. */
+	font-size: clamp(1.3rem, 5vw, 2.9rem);
+	letter-spacing: 0.12em;
+	padding-inline: 1rem;
+	text-wrap: balance;
 	color: var(--highlight);
 	text-shadow: 0 0 24px color-mix(in srgb, var(--highlight) 60%, transparent),
 		0 2px 0 var(--d20-edge);

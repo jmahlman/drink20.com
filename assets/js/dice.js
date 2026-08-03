@@ -373,13 +373,13 @@ const CHEER = ["🎉", "🎊", "🎲", "🍻", "✨", "⭐️", "🔥", "💥", 
  * --d20-face on the die: every face's background is a color-mix against that
  * property, so all twenty turn gold from one declaration.
  */
-function celebrate(overlay, drop, reduced) {
+function celebrate(overlay, drops, label, reduced) {
 	overlay.classList.add("dice-overlay--crit");
-	drop.classList.add("dice-drop--crit");
+	drops.forEach((drop) => drop.classList.add("dice-drop--crit"));
 
 	const banner = document.createElement("p");
 	banner.className = "crit-banner";
-	banner.textContent = "Natural 20";
+	banner.textContent = label;
 	overlay.appendChild(banner);
 
 	if (reduced) return;
@@ -517,9 +517,9 @@ export function roll(count = 1, sides = 20) {
 	const throwX = window.innerWidth * 0.12;
 
 	const results = [];
-	// Populated below so the celebration can wait for the die to finish rolling.
-	let critDrop = null;
-	let critFall = null;
+	// One entry per die, so the crit check below can look at the whole roll and
+	// wait for the right dice to finish before celebrating.
+	const thrown = [];
 
 	for (let i = 0; i < n; i += 1) {
 		const index = Math.floor(Math.random() * sides);
@@ -539,9 +539,8 @@ export function roll(count = 1, sides = 20) {
 		drop.appendChild(die);
 		tray.appendChild(drop);
 
-		// A natural 20 only counts on a single d20 — "20" on one of four dice
-		// isn't a crit, it's just arithmetic.
-		if (n === 1 && sides === 20 && value === 20) critDrop = drop;
+		const entry = { drop, value, fall: null };
+		thrown.push(entry);
 
 		if (reduced) {
 			die.style.transform = settle;
@@ -583,7 +582,25 @@ export function roll(count = 1, sides = 20) {
 			{ duration, delay, easing: "cubic-bezier(.22,.68,.3,1)", fill: "both" }
 		);
 
-		if (drop === critDrop) critFall = fall;
+		entry.fall = fall;
+	}
+
+	/*
+	 * Two ways to crit:
+	 *   a lone d20 showing 20 — a natural twenty;
+	 *   2d12 landing on matching faces — Daggerheart's duality dice.
+	 * A 20 among several dice is arithmetic, not a crit, so both checks pin
+	 * the exact shape of the roll.
+	 */
+	let crit = null;
+	if (n === 1 && sides === 20 && results[0] === 20) {
+		crit = { label: "Natural 20", drops: [thrown[0].drop], said: "Natural twenty!" };
+	} else if (n === 2 && sides === 12 && results[0] === results[1]) {
+		crit = {
+			label: "Critical success!",
+			drops: thrown.map((t) => t.drop),
+			said: "Critical success!",
+		};
 	}
 
 	// Screen readers get the outcome without the theatre.
@@ -591,22 +608,23 @@ export function roll(count = 1, sides = 20) {
 	const said = document.createElement("p");
 	said.className = "visually-hidden";
 	said.setAttribute("role", "status");
-	said.textContent = critDrop
-		? "Rolled d20: 20. Natural twenty!"
-		: n === 1
-		? `Rolled d${sides}: ${results[0]}.`
-		: `Rolled ${n}d${sides}: ${results.join(", ")}. Total ${total}.`;
+	const summary =
+		n === 1
+			? `Rolled d${sides}: ${results[0]}.`
+			: `Rolled ${n}d${sides}: ${results.join(", ")}. Total ${total}.`;
+	said.textContent = crit ? `${summary} ${crit.said}` : summary;
 	overlay.appendChild(said);
 
 	document.body.appendChild(overlay);
 
-	// Hold the gold until the die has actually stopped rolling — turning it mid
-	// tumble gives the result away before the die has landed.
-	if (critDrop) {
-		if (reduced || !critFall) celebrate(overlay, critDrop, true);
+	// Hold the gold until the dice have actually stopped rolling — turning them
+	// mid tumble gives the result away before they've landed.
+	if (crit) {
+		const falls = thrown.map((t) => t.fall).filter(Boolean);
+		if (reduced || !falls.length) celebrate(overlay, crit.drops, crit.label, true);
 		else {
-			critFall.finished
-				.then(() => celebrate(overlay, critDrop, false))
+			Promise.all(falls.map((f) => f.finished))
+				.then(() => celebrate(overlay, crit.drops, crit.label, false))
 				.catch(() => {});
 		}
 	}
@@ -630,5 +648,5 @@ export function roll(count = 1, sides = 20) {
 	document.addEventListener("keydown", onKey);
 	overlay.addEventListener("click", dismiss);
 	// A crit earns a longer look.
-	setTimeout(dismiss, reduced ? 3200 : critDrop ? 7200 : 5200);
+	setTimeout(dismiss, reduced ? 3200 : crit ? 7200 : 5200);
 }
