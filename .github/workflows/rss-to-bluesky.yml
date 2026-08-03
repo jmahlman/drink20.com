@@ -191,7 +191,28 @@ jobs:
           shopt -s nullglob
           for img in assets/social/*.png; do
             echo "Optimizing $img"
-            convert "$img" -resize 2000x2000\> -strip -quality 82 "$img"
+            # More aggressive compression to meet Bluesky's 1MB limit
+            convert "$img" \
+              -resize 2000x2000\> \
+              -quality 75 \
+              -strip \
+              -interlace Plane \
+              -colorspace sRGB \
+              "$img"
+            
+            # Verify file size is under 1MB
+            size=$(stat -f%z "$img" 2>/dev/null || stat -c%s "$img")
+            if (( size > 1000000 )); then
+              echo "Warning: $img is still over 1MB ($size bytes). Further compression needed."
+              # Apply even more aggressive compression
+              convert "$img" \
+                -resize 1500x1500\> \
+                -quality 65 \
+                -strip \
+                -interlace Plane \
+                -colorspace sRGB \
+                "$img"
+            fi
             ls -lh "$img"
           done
 
