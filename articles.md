@@ -2,6 +2,7 @@
 layout: page
 title: Archive
 description: Every Drink20 post, newest first.
+wide: true
 ---
 
 <ul class="post-list">

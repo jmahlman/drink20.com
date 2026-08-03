@@ -6,6 +6,11 @@
 	max-width: var(--measure);
 }
 
+/* Grid pages need the whole column, not a 68ch reading measure. */
+.prose--full {
+	max-width: none;
+}
+
 .prose > * + * {
 	margin-top: var(--space-s);
 }
@@ -46,10 +51,15 @@
 	padding-left: 1.4em;
 }
 
-/* Component lists dropped into prose (the archive page) keep their own layout. */
+/* Component lists dropped into prose (the archive page) keep their own layout
+   and their own link styling, rather than inheriting prose's underlines. */
 .prose .post-list {
 	padding-left: 0;
 	list-style: none;
+}
+
+.prose .post-card__title a {
+	text-decoration: none;
 }
 
 .prose li + li {

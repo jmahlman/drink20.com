@@ -37,7 +37,7 @@ layout: default
 			{%- endif -%}
 		</div>
 
-		<ul class="post-list">
+		<ul class="post-list post-list--lead">
 			{%- for post in paginator.posts -%}
 			<li class="post-card">
 				{%- if post.image -%}
@@ -64,8 +64,10 @@ layout: default
 						<a href="{{ post.url | relative_url }}">{{ post.title }}</a>
 					</h3>
 
+					{%- comment -%} The lead story has the room for a longer standfirst. {%- endcomment -%}
+					{%- if forloop.first -%}{%- assign trim = 240 -%}{%- else -%}{%- assign trim = 130 -%}{%- endif -%}
 					<p class="post-card__excerpt">
-						{{ post.description | default: post.excerpt | strip_html | truncate: 130 }}
+						{{ post.description | default: post.excerpt | strip_html | truncate: trim }}
 					</p>
 
 					<p class="post-card__more" aria-hidden="true">Read more &rarr;</p>
