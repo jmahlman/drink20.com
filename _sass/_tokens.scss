@@ -1,0 +1,125 @@
+/* ===========================================================================
+   DESIGN TOKENS
+   Dark is the default. Light mode is opt-in via the header toggle, which sets
+   data-theme="light" on <html>. Nothing else in the stylesheet hardcodes a
+   colour, so the two modes stay in sync by construction.
+   =========================================================================== */
+
+:root {
+	/* --- Type scale ------------------------------------------------------ */
+	--step--1: clamp(0.83rem, 0.8rem + 0.15vw, 0.92rem);
+	--step-0: clamp(1rem, 0.96rem + 0.2vw, 1.12rem);
+	--step-1: clamp(1.2rem, 1.12rem + 0.4vw, 1.45rem);
+	--step-2: clamp(1.45rem, 1.3rem + 0.75vw, 1.95rem);
+	--step-3: clamp(1.75rem, 1.5rem + 1.25vw, 2.6rem);
+	--step-4: clamp(2.1rem, 1.65rem + 2.25vw, 3.6rem);
+
+	/* --- Spacing --------------------------------------------------------- */
+	--space-3xs: 0.25rem;
+	--space-2xs: 0.5rem;
+	--space-xs: 0.75rem;
+	--space-s: 1rem;
+	--space-m: 1.5rem;
+	--space-l: 2.25rem;
+	--space-xl: 3.5rem;
+	--space-2xl: 5rem;
+
+	/* --- Measure --------------------------------------------------------- */
+	--measure: 68ch;
+	--container: 72rem;
+	--container-narrow: 44rem;
+
+	/* --- Type ------------------------------------------------------------ */
+	/* The brand face, used only for the masthead wordmark. It's a caps/small-caps
+	   font with no arrow glyphs, so it's deliberately kept off general UI. */
+	--font-brand: "Copperplate CC", "Copperplate", "Copperplate Gothic Light",
+		Georgia, serif;
+	--font-display: "Space Grotesk", "Helvetica Neue", sans-serif;
+	--font-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+	--display-weight: 700;
+	--display-spacing: -0.02em;
+
+	/* --- Shape ----------------------------------------------------------- */
+	--radius: 10px;
+	--radius-lg: 16px;
+	--transition: 160ms ease;
+
+	/* --- Dark mode (default) --------------------------------------------- */
+	--bg: #10131a;
+	--bg-alt: #161a23;
+	--surface: #1a1f2a;
+	--surface-2: #212736;
+	--text: #e9eaee;
+	--text-muted: #98a1b3;
+	--accent: #ef5350;
+	--accent-hover: #ff6b68;
+	--accent-contrast: #10131a;
+	--highlight: #f2b134;
+	--border: #272e3c;
+	--border-strong: #364052;
+
+	--shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+	--shadow-lg: 0 24px 48px -28px rgba(0, 0, 0, 0.9);
+
+	--header-bg: rgba(16, 19, 26, 0.82);
+	--hero-bg: var(--bg-alt);
+	--footer-bg: var(--bg-alt);
+
+	/* Hero headline: brand red on dark, near-black on light. */
+	--hero-title: var(--accent);
+
+	/* Easter-egg dice: red body, heavy black linework, matching the logo die. */
+	--d20-face: #d3352f;
+	--d20-edge: #0d0d0d;
+
+	/* The d20 watermark is a fixed-colour PNG, so it's dialled in per mode. */
+	--die-opacity: 0.14;
+
+	--page-texture: radial-gradient(
+			ellipse 70% 50% at 50% -10%,
+			rgba(239, 83, 80, 0.14),
+			transparent 70%
+		),
+		radial-gradient(
+			ellipse 60% 40% at 90% 8%,
+			rgba(242, 177, 52, 0.08),
+			transparent 65%
+		);
+
+	color-scheme: dark;
+}
+
+/* --- Light mode ---------------------------------------------------------- */
+
+[data-theme="light"] {
+	--bg: #f8f8f6;
+	--bg-alt: #efefea;
+	--surface: #ffffff;
+	--surface-2: #f3f3ee;
+	--text: #16181d;
+	--text-muted: #5c626e;
+	/* The deeper brand red — #ef5350 doesn't clear 4.5:1 on a light surface. */
+	--accent: #c1302c;
+	--accent-hover: #9d2320;
+	--accent-contrast: #ffffff;
+	--highlight: #96690c;
+	--border: #e3e3dc;
+	--border-strong: #c8c8be;
+
+	--shadow: 0 1px 2px rgba(20, 20, 15, 0.06);
+	--shadow-lg: 0 20px 40px -28px rgba(20, 20, 15, 0.35);
+
+	--header-bg: rgba(248, 248, 246, 0.85);
+
+	--hero-title: var(--accent);
+
+	--die-opacity: 0.09;
+
+	--page-texture: radial-gradient(
+		ellipse 70% 50% at 50% -10%,
+		rgba(193, 48, 44, 0.07),
+		transparent 70%
+	);
+
+	color-scheme: light;
+}

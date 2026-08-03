@@ -1,23 +1,32 @@
 title: Drink20 Philly
 description: Take a Drink and Roll Initiative
-# Theme name: Long Haul: https://jekyllthemes.io/theme/long-haul
+lang: en-US
 
 url: https://drink20.com
 paginate_path: "blog/page:num/"
 permalink: blog/:title/
 
-# Header Option
-# header: large
+# Theme: dark by default, with a light mode behind the masthead toggle.
+# Colours live in _sass/_tokens.scss.
 
 sass:
     style: compressed
 
 markdown: kramdown
 highlighter: rouge
-plugins: 
+plugins:
 - jekyll-paginate
 - jekyll-feed
 paginate: 10
+
+exclude:
+- assets/img/README.md
+- Dockerfile
+- docker-compose.yml
+- package.json
+- package-lock.json
+- node_modules
+- README.md
 
 navigation:
     - title: Home

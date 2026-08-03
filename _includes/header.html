@@ -1,14 +1,60 @@
- <div class="header {% if site.header == "large" %}header--large{% endif %}">
-     <div class="container">
-         <h1 class="logo"><a href="/">{{ site.title }}</a></h1><br>
-         <nav class="nav-collapse">
-             <ul class="noList">
-                 {%- for link in site.navigation -%}{%- assign current = nil -%}{%- if page.url contains link.url or forloop.first and page.url == '/' or page.url == 'index.html' -%}{%- assign current = 'current' -%}{%- endif -%}
-                 <li class="element {%- if forloop.first -%}first{%- endif -%} {{ current }} {%- if forloop.last -%}last{%- endif -%}">
-                     <a href="{{ link.url }}">{{ link.title }}</a>
-                 </li> 
-                 {%- endfor -%}
-             </ul>
-         </nav>
-     </div>
- </div><!-- end .header -->
+<header class="masthead">
+	<div class="container masthead__inner">
+		{%- comment -%}
+		The tagline sits outside the link so the home link reads as just the
+		group's name, rather than name-plus-tagline, to a screen reader.
+		{%- endcomment -%}
+		<div class="brand">
+			<a class="brand__link" href="{{ '/' | relative_url }}">
+				{%- comment -%}
+				The blank die reads cleaner at 37px — the wordmark beside it already
+				says "20", so the numeral in the icon is just noise at this size.
+				{%- endcomment -%}
+				<img
+					class="brand__mark"
+					src="{{ '/assets/img/d20-blank-128.png' | relative_url }}"
+					alt=""
+					width="128"
+					height="128"
+				/>
+				<span class="brand__name">Drink<span class="brand__accent">20</span> Philly</span>
+			</a>
+			<p class="brand__tagline">{{ site.description }}</p>
+		</div>
+
+		<div class="masthead__actions">
+			{%- include theme-toggle.html -%}
+
+			<nav aria-label="Main">
+				<button
+					class="nav__toggle"
+					type="button"
+					aria-expanded="false"
+					aria-controls="nav-menu"
+					data-nav-toggle
+				>
+					<span class="nav__toggle-bars" aria-hidden="true"></span>
+					<span class="visually-hidden">Menu</span>
+				</button>
+
+				<ul class="nav__list" id="nav-menu" hidden>
+					{%- for link in site.navigation -%}
+						{%- assign is_current = false -%}
+						{%- if link.url == '/index.html' -%}
+							{%- if page.url == '/' -%}{%- assign is_current = true -%}{%- endif -%}
+						{%- elsif page.url contains link.url -%}
+							{%- assign is_current = true -%}
+						{%- endif -%}
+						<li>
+							<a
+								class="nav__link"
+								href="{{ link.url | relative_url }}"
+								{% if is_current %}aria-current="page"{% endif %}
+							>{{ link.title }}</a>
+						</li>
+					{%- endfor -%}
+				</ul>
+			</nav>
+		</div>
+	</div>
+</header>

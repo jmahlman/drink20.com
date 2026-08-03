@@ -1,9 +1,8 @@
 ---
-layout: default
+layout: page
 title: Our Current Brewery Partners
 ---
 
-## Our Current Brewery Partners
 We wouldn't be able to do this without our awesome local brewery partners. Even if you're not coming for a game, you should consider stopping by and supporting these local businesses.
 
 [![Aristaeus Logo](/assets/img/breweries/aristaeus-light-web.png){: width="300"}](https://aristaeusbrewing.com/)  

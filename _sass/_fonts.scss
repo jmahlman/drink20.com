@@ -1,0 +1,39 @@
+/* ===========================================================================
+   COPPERPLATE CC — the brand face, self-hosted.
+   Used ONLY for the masthead wordmark (.brand).
+
+   SIL Open Font License 1.1 — embedding and redistribution are explicitly
+   permitted. The licence text ships in the font's own metadata and in
+   assets/fonts/copperplate-cc/LICENSE.md, which satisfies the OFL's
+   requirement that each copy carry the notice.
+   Copyright 2020 The Cowboy Collective, designed by indestructible type*.
+
+   Note the weight naming: this revival keeps the original foundry's
+   convention where the NON-bold cut is called "Heavy". Its own metadata
+   reports Heavy as subfamily "Regular", so Heavy maps to 400, Bold to 700.
+
+   The face has no small-caps table and no arrow glyphs, so text set in it
+   renders as full caps — fine for the wordmark, which is why it's kept off
+   general UI.
+
+   Served as .otf (~26 KB). The .ttf files in the same folder are the same
+   outlines in a larger format and are unused.
+   =========================================================================== */
+
+@font-face {
+	font-family: "Copperplate CC";
+	src: url("/assets/fonts/copperplate-cc/CopperplateCC-Heavy.otf")
+		format("opentype");
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Copperplate CC";
+	src: url("/assets/fonts/copperplate-cc/CopperplateCC-Bold.otf")
+		format("opentype");
+	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
+}

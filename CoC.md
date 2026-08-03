@@ -1,9 +1,7 @@
 ---
-layout: default
+layout: page
 title: Code of Conduct
 ---
-
-## Drink20 Code of Conduct
 
 All participants of Drink20 Philly are expected to abide by our Code of Conduct, both online and during in-person events that are hosted and/or associated with Drink20 Philly. Participants refers to players, DMs/GMs, or any other persons acting on behalf of Drink20.
 

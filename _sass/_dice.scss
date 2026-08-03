@@ -1,0 +1,194 @@
+/* ===========================================================================
+   Hidden roll — the dice-notation Easter egg ("d20", "3d10", "4d6"...).
+   Geometry is set inline by dice.js as custom properties; this file only
+   handles staging and surface treatment.
+
+   Per-face properties set by the script:
+     --clip      the face's outline, already in percentages
+     --cx/--cy   the face centroid's position inside the element
+     --rim       inset scale that leaves an even black edge
+     --face-bg   the shaded body colour
+     --pip-size  numeral size, scaled to the face
+   =========================================================================== */
+
+.dice-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 200;
+	display: grid;
+	place-items: center;
+	/* Click anywhere dismisses, but the page underneath stays usable until
+	   then — the overlay itself is the only click target. */
+	background: transparent;
+	perspective: 1100px;
+}
+
+/* A positioned area rather than a row: dice.js scatters the dice inside it,
+   so they land in a loose cluster instead of a tidy line. Sized inline. */
+.dice-tray {
+	position: relative;
+	transform-style: preserve-3d;
+}
+
+.dice-drop {
+	position: absolute;
+	transform-style: preserve-3d;
+	filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.45));
+}
+
+.die {
+	position: relative;
+	transform-style: preserve-3d;
+	/* dice.js sets width/height from the computed circumradius. */
+}
+
+.die__face {
+	position: absolute;
+	top: 0;
+	left: 0;
+	/* matrix3d from dice.js maps this box onto the face's plane, so the
+	   element's own origin has to sit at its top-left corner. */
+	transform-origin: 0 0;
+	backface-visibility: hidden;
+	clip-path: var(--clip);
+	/* This layer is the black edge; ::before is the shaded body sitting on top
+	   of it, inset just enough to leave a rim — the same heavy black linework
+	   as the logo. */
+	background: var(--d20-edge);
+}
+
+.die__face::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	clip-path: var(--clip);
+	background: var(--face-bg, var(--d20-face));
+	/* Scaling a polygon about its centroid shrinks its inradius by the same
+	   factor, so the rim comes out an even width on every edge. dice.js works
+	   out the factor from each face's actual inradius. */
+	transform: scale(var(--rim, 0.87));
+	transform-origin: var(--cx, 50%) var(--cy, 50%);
+}
+
+.die__pip {
+	position: absolute;
+	left: var(--cx, 50%);
+	top: var(--cy, 50%);
+	z-index: 1;
+	transform: translate(-50%, -50%);
+	font-family: var(--font-brand);
+	font-weight: 700;
+	font-size: var(--pip-size, 1.4rem);
+	letter-spacing: 0.02em;
+	line-height: 1;
+	color: #fff;
+	/* An outline built from offsets rather than -webkit-text-stroke, which
+	   centres the stroke and thins the glyph without `paint-order` support. */
+	text-shadow: -2px -2px 0 var(--d20-edge), 2px -2px 0 var(--d20-edge),
+		-2px 2px 0 var(--d20-edge), 2px 2px 0 var(--d20-edge),
+		0 -2px 0 var(--d20-edge), 0 2px 0 var(--d20-edge),
+		-2px 0 0 var(--d20-edge), 2px 0 0 var(--d20-edge);
+	user-select: none;
+}
+
+/* The dice-maker's convention for telling 6 from 9. */
+.die__pip--bar {
+	text-decoration: underline;
+	text-decoration-thickness: 2px;
+	text-underline-offset: 3px;
+}
+
+/* --- Natural 20 ---------------------------------------------------------- */
+
+/* Dim the whole page so the crit owns the screen. Sits behind the dice via a
+   negative z-index, which stays inside the overlay's own stacking context. */
+.dice-overlay--crit::before {
+	content: "";
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	background: radial-gradient(
+		ellipse at center,
+		rgba(0, 0, 0, 0.62),
+		rgba(0, 0, 0, 0.88)
+	);
+	animation: crit-dim 420ms ease both;
+}
+
+@keyframes crit-dim {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+/* Overriding --d20-face here re-mixes every face's background at once, so the
+   whole die turns gold from one declaration. The transition on the face body
+   below makes it a glow-up rather than a hard swap. */
+.dice-drop--crit {
+	--d20-face: var(--highlight);
+	filter: drop-shadow(0 0 26px var(--highlight))
+		drop-shadow(0 18px 30px rgba(0, 0, 0, 0.5));
+	transition: filter 420ms ease;
+}
+
+.die__face::before {
+	transition: background 380ms ease;
+}
+
+.crit-banner {
+	position: absolute;
+	left: 0;
+	right: 0;
+	/* Anchored to the die rather than the viewport — a single die always lands
+	   dead centre, so this sits just above it at any window height. */
+	top: calc(50% - 190px);
+	margin: 0;
+	text-align: center;
+	isolation: isolate;
+	font-family: var(--font-brand);
+	font-weight: 700;
+	/* Sized for the longest label ("Critical success!") — Copperplate is all
+	   caps and generously tracked, so it eats width fast. */
+	font-size: clamp(1.3rem, 5vw, 2.9rem);
+	letter-spacing: 0.12em;
+	padding-inline: 1rem;
+	text-wrap: balance;
+	color: var(--highlight);
+	text-shadow: 0 0 24px color-mix(in srgb, var(--highlight) 60%, transparent),
+		0 2px 0 var(--d20-edge);
+	user-select: none;
+}
+
+/* Thrown from the centre, so the container is a zero-size anchor point. */
+.cheer {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 0;
+	height: 0;
+}
+
+.cheer__bit {
+	position: absolute;
+	left: 0;
+	top: 0;
+	display: block;
+	line-height: 1;
+	/* Emoji only — no glyph fallback worth inheriting from the brand face. */
+	font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji",
+		sans-serif;
+	user-select: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.dice-drop {
+		filter: none;
+	}
+
+	.dice-drop--crit {
+		filter: drop-shadow(0 0 20px var(--highlight));
+	}
+}

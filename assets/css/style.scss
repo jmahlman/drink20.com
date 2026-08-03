@@ -1,35 +1,17 @@
 ---
+# Front matter is required so Jekyll runs this through Sass.
 ---
 
-// Reset using Normalize
-@import "normalize";
+// Drink20 theme.
+// Colour/spacing/type tokens live in _sass/_tokens.scss — dark by default,
+// with a light mode under [data-theme="light"]. Fonts are loaded via a
+// preconnected <link> in _includes/head.html so they don't block this file.
 
-// Import fonts from Google
-@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,800);
-@import url(https://fonts.googleapis.com/css?family=PT+Serif:400,700,400italic,700italic);
-
-// Site configuration
-@import "config";
-
-// Import Partials
-@import "partials/typography";
-@import "partials/mixins";
-
-// Modules
-@import "modules/buttons";
-@import "modules/forms";
-@import "modules/tables";
-@import "modules/syntax";
-
-// Mobile up base styles
-@import "breakpoints/mobileup";
-
-// Import media queries add more as you desire
-@media only screen and (min-width: 800px) {
-	@import "breakpoints/800up";
-}
-@media only screen and (min-width: 1200px) {
-	@import "breakpoints/1200up";
-}
-
-// If IE support is needed you can add them here or create another stylesheet for specific IE fixes
+@import "fonts";
+@import "tokens";
+@import "base";
+@import "layout";
+@import "components";
+@import "prose";
+@import "syntax";
+@import "dice";

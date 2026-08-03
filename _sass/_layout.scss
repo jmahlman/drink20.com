@@ -1,0 +1,419 @@
+/* ===========================================================================
+   SITE FRAME — header, hero, footer
+   =========================================================================== */
+
+/* Masthead --------------------------------------------------------------- */
+
+.masthead {
+	position: sticky;
+	top: 0;
+	z-index: 50;
+	background: var(--header-bg);
+	border-bottom: 1px solid var(--header-border);
+	backdrop-filter: saturate(1.4) blur(10px);
+}
+
+.masthead__inner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-m);
+	min-height: 4.5rem;
+}
+
+/* The masthead lockup: die + wordmark, with the tagline tucked underneath and
+   aligned to the wordmark rather than the die — the way the logo art sets it. */
+.brand {
+	display: flex;
+	flex-direction: column;
+	gap: 0.28em;
+	font-family: var(--font-brand);
+	/* 700 is Copperplate CC's "Bold"; the 400 cut is too light to hold the
+	   masthead, and using one weight keeps this to a single font request. */
+	font-weight: 700;
+	line-height: 1;
+}
+
+.brand__link {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-2xs);
+	color: var(--text);
+	text-decoration: none;
+	/* Copperplate is a caps face and wants air between the letters. */
+	letter-spacing: 0.06em;
+	font-size: var(--step-1);
+	white-space: nowrap;
+}
+
+.brand__link:hover {
+	color: var(--text);
+}
+
+.brand__tagline {
+	/* Indent past the die so the tagline hangs off the wordmark, not the icon:
+	   mark width (2.3rem) + the flex gap. */
+	margin-left: calc(2.3rem + var(--space-2xs));
+	font-size: 0.6rem;
+	letter-spacing: 0.16em;
+	color: var(--text-muted);
+	white-space: nowrap;
+}
+
+/* Below this the masthead needs the room for the toggle and menu button.
+   Copperplate caps are wide, so the wordmark comes down a size too or it
+   squeezes the buttons past the container padding. */
+@media (max-width: 36rem) {
+	.brand__tagline {
+		display: none;
+	}
+
+	.brand__link {
+		font-size: 0.95rem;
+		letter-spacing: 0.04em;
+		gap: var(--space-3xs);
+	}
+
+	.brand__mark {
+		width: 1.9rem;
+		height: 1.9rem;
+	}
+}
+
+.brand__mark {
+	width: 2.3rem;
+	height: 2.3rem;
+	flex: none;
+	transition: transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 72° is one face of a d20 — the die lands back on itself. */
+.brand__link:hover .brand__mark {
+	transform: rotate(72deg);
+}
+
+.brand__accent {
+	color: var(--accent);
+}
+
+.masthead__actions {
+	display: flex;
+	align-items: center;
+	gap: var(--space-s);
+}
+
+/* Theme toggle ----------------------------------------------------------- */
+
+.theme-toggle {
+	display: grid;
+	place-items: center;
+	width: 2.4rem;
+	height: 2.4rem;
+	flex: none;
+	padding: 0;
+	background: transparent;
+	border: 1px solid var(--border-strong);
+	border-radius: 999px;
+	color: var(--text-muted);
+	cursor: pointer;
+	transition: color var(--transition), border-color var(--transition);
+}
+
+.theme-toggle:hover {
+	color: var(--accent);
+	border-color: var(--accent);
+}
+
+.theme-toggle__icon {
+	grid-area: 1 / 1;
+	width: 1.05rem;
+	height: 1.05rem;
+}
+
+/* Show the mode you'd switch *to*. */
+.theme-toggle__icon--sun {
+	display: block;
+}
+
+.theme-toggle__icon--moon {
+	display: none;
+}
+
+[data-theme="light"] .theme-toggle__icon--sun {
+	display: none;
+}
+
+[data-theme="light"] .theme-toggle__icon--moon {
+	display: block;
+}
+
+/* Navigation ------------------------------------------------------------- */
+
+.nav__toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-3xs);
+	padding: var(--space-3xs) var(--space-2xs);
+	background: transparent;
+	border: 1px solid var(--border-strong);
+	border-radius: var(--radius);
+	color: var(--text);
+	cursor: pointer;
+	font-size: var(--step--1);
+}
+
+.nav__toggle-bars {
+	display: block;
+	position: relative;
+	width: 1.1rem;
+	height: 2px;
+	background: currentColor;
+}
+
+.nav__toggle-bars::before,
+.nav__toggle-bars::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	width: 100%;
+	height: 2px;
+	background: currentColor;
+	transition: transform var(--transition);
+}
+
+.nav__toggle-bars::before {
+	top: -6px;
+}
+.nav__toggle-bars::after {
+	top: 6px;
+}
+
+.nav__list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	align-items: center;
+	gap: var(--space-s);
+}
+
+.nav__link {
+	display: inline-block;
+	position: relative;
+	padding: var(--space-3xs) 0;
+	color: var(--text-muted);
+	text-decoration: none;
+	font-size: var(--step--1);
+	letter-spacing: 0.02em;
+}
+
+.nav__link::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	height: 2px;
+	background: var(--accent);
+	transform: scaleX(0);
+	transform-origin: left;
+	transition: transform var(--transition);
+}
+
+.nav__link:hover,
+.nav__link[aria-current="page"] {
+	color: var(--text);
+}
+
+.nav__link:hover::after,
+.nav__link[aria-current="page"]::after {
+	transform: scaleX(1);
+}
+
+/* Mobile nav */
+@media (max-width: 55rem) {
+	.nav__list {
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 100%;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0;
+		padding: var(--space-2xs) var(--space-m) var(--space-s);
+		background: var(--bg);
+		border-bottom: 1px solid var(--border);
+		box-shadow: var(--shadow-lg);
+	}
+
+	.nav__list[hidden] {
+		display: none;
+	}
+
+	.nav__link {
+		display: block;
+		padding: var(--space-2xs) 0;
+		font-size: var(--step-0);
+		border-bottom: 1px solid var(--border);
+	}
+
+	.nav__list li:last-child .nav__link {
+		border-bottom: 0;
+	}
+
+	.nav__link::after {
+		display: none;
+	}
+}
+
+@media (min-width: 55.01rem) {
+	.nav__toggle {
+		display: none;
+	}
+
+	.nav__list[hidden] {
+		display: flex;
+	}
+}
+
+/* Hero ------------------------------------------------------------------- */
+
+.hero {
+	position: relative;
+	overflow: hidden;
+	background: var(--hero-bg);
+	border-bottom: 1px solid var(--border);
+	padding-block: var(--space-2xl);
+}
+
+.hero__inner {
+	position: relative;
+	z-index: 1;
+	max-width: 46rem;
+}
+
+.hero__title {
+	font-size: var(--step-4);
+	margin-bottom: var(--space-s);
+	color: var(--hero-title);
+}
+
+/* Supporting line under a headline. Named for its job, not its position, since
+   both the hero and page headers use it. */
+.lede {
+	font-size: var(--step-1);
+	color: var(--text-muted);
+	max-width: 42ch;
+	margin-bottom: var(--space-l);
+}
+
+.hero__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-2xs);
+}
+
+/* The d20 bleeding off the corner, carried over from the old site.
+   Decorative only, so it's hidden from assistive tech. */
+.hero__die {
+	position: absolute;
+	top: 50%;
+	right: -5rem;
+	width: 28rem;
+	max-width: 55%;
+	opacity: var(--die-opacity);
+	transform: translateY(-50%) rotate(-12deg);
+	pointer-events: none;
+	user-select: none;
+}
+
+@media (max-width: 45rem) {
+	.hero {
+		padding-block: var(--space-xl);
+	}
+
+	.hero__die {
+		right: -7rem;
+	}
+}
+
+/* Main ------------------------------------------------------------------- */
+
+.main {
+	flex: 1 0 auto;
+	padding-block: var(--space-xl);
+}
+
+.section + .section {
+	margin-top: var(--space-2xl);
+}
+
+.section__head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: var(--space-s);
+	margin-bottom: var(--space-l);
+	padding-bottom: var(--space-2xs);
+	border-bottom: 1px solid var(--border);
+}
+
+.section__title {
+	font-size: var(--step-2);
+}
+
+/* Footer ----------------------------------------------------------------- */
+
+.site-footer {
+	flex: none;
+	background: var(--footer-bg);
+	border-top: 1px solid var(--border);
+	padding-block: var(--space-l);
+	margin-top: var(--space-2xl);
+}
+
+.site-footer__inner {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-m);
+}
+
+.site-footer__copy {
+	font-size: var(--step--1);
+	color: var(--text-muted);
+}
+
+.social {
+	list-style: none;
+	display: flex;
+	align-items: center;
+	gap: var(--space-2xs);
+	padding: 0;
+	margin: 0;
+}
+
+.social__link {
+	display: grid;
+	place-items: center;
+	width: 2.5rem;
+	height: 2.5rem;
+	border: 1px solid var(--border-strong);
+	border-radius: var(--radius);
+	color: var(--text-muted);
+	transition: color var(--transition), border-color var(--transition),
+		transform var(--transition);
+}
+
+.social__link:hover {
+	color: var(--accent);
+	border-color: var(--accent);
+	transform: translateY(-2px);
+}
+
+.social__link svg {
+	width: 1.15rem;
+	height: 1.15rem;
+	fill: currentColor;
+}

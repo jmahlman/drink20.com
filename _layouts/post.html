@@ -1,38 +1,62 @@
 ---
 layout: default
 ---
-<article class="post">
-  {%- if page.image -%}
-    <div class="featuredImage">
-        <img src="{{ '/assets/img/' | append: page.image }}" alt="" />
-      </div>
-  {%- endif -%}
-  <header>
-    <h1 class="postTitle">{{ page.title }}</h1>
-    <p class="meta">{{ page.date | date: '%B %d, %Y' }} | <span class="time">{{ page.content | number_of_words | divided_by:180 }}</span> Minute Read</p>
-  </header>
+<main class="main" id="main">
+	<article class="post">
+		<div class="container container--narrow">
+			<header class="post-header">
+				<p class="eyebrow">
+					<time datetime="{{ page.date | date_to_xmlschema }}">
+						{{ page.date | date: '%B %-d, %Y' }}
+					</time>
+				</p>
+				<h1 class="post-header__title">{{ page.title }}</h1>
+				<div class="post-header__meta">
+					{%- if page.author -%}
+						<span>By {{ page.author }}</span>
+						<span aria-hidden="true">·</span>
+					{%- endif -%}
+					{%- assign minutes = page.content | number_of_words | divided_by: 180 | plus: 1 -%}
+					<span>{{ minutes }} min read</span>
+				</div>
+			</header>
 
-  {{ content }}
+			{%- if page.image -%}
+			<figure class="post-hero">
+				<img src="{{ page.image | prepend: '/assets/img/' | relative_url }}" alt="" />
+			</figure>
+			{%- endif -%}
 
-  <!-- POST NAVIGATION -->
-  <footer class="postNav clearfix">
-    {%- if page.previous.url -%} 
-      <a class="prev{% if page.previous.image %} image{% endif %}" href="{{ page.previous.url }}"><span>&laquo;&nbsp;{{ page.previous.title }}</span>
-      {%- if page.previous.image -%} 
-        <img src="{{ '/assets/img/' |  append: page.previous.image }}" alt="">
-      {%- endif -%}
-    </a>
-    {%- endif -%}  
-    {%- if page.next.url -%}  
-      <a class="next{% if page.next.image %} image{% endif %}" href="{{ page.next.url }}"><span>{{ page.next.title }}&nbsp;&raquo;</span>
-      {%- if page.next.image -%} 
-        <img src="{{ '/assets/img/' | append: page.next.image }}" alt="">
-      {%- endif -%} 
-      </a>
-    {%- endif -%} 
-  </footer>
-</article>
+			<div class="prose">
+				{{ content }}
+			</div>
 
-{%- if site.disqus.shortname -%}
-  {%- include disqus_comments.html -%}
-{%- endif -%}
+			{%- comment -%}
+			Jekyll's `previous` is older and `next` is newer — labelled here so the
+			arrows read the way a reader expects.
+			{%- endcomment -%}
+			{%- if page.previous.url or page.next.url -%}
+			<nav class="post-nav" aria-label="More posts">
+				{%- if page.next.url -%}
+				<a class="post-nav__link" href="{{ page.next.url | relative_url }}">
+					<span class="post-nav__dir">&larr; Newer</span>
+					<span class="post-nav__title">{{ page.next.title }}</span>
+				</a>
+				{%- else -%}
+				<span></span>
+				{%- endif -%}
+
+				{%- if page.previous.url -%}
+				<a
+					class="post-nav__link post-nav__link--next"
+					href="{{ page.previous.url | relative_url }}"
+				>
+					<span class="post-nav__dir">Older &rarr;</span>
+					<span class="post-nav__title">{{ page.previous.title }}</span>
+				</a>
+				{%- endif -%}
+			</nav>
+			{%- endif -%}
+		</div>
+	</article>
+</main>

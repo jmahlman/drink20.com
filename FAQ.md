@@ -1,9 +1,7 @@
 ---
-layout: default
+layout: page
 title: FAQs
 ---
-
-## Drink20 FAQs
 
 * [What is the best way to find out about Drink20 events?](#faq_how_to_get_info)
 * [Do I need to sign up for an event to join a game?](#faq_signups)

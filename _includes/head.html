@@ -1,86 +1,76 @@
 <head>
 	<meta charset="utf-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<meta name="description" content="" />
-	<title>{{ page.title }}</title>
 
-	<!-- Open Graph Meta -->
-	<meta content="{{ site.title }}" property="og:site_name" />
-	{%- if page.title -%}
-	<meta content="{{ page.title }}" property="og:title" />
+	{%- comment -%} Resolve title/description/image once, reuse in every meta block. {%- endcomment -%}
+	{%- if page.title and page.url != '/' -%}
+		{%- assign page_title = page.title | append: ' · ' | append: site.title -%}
 	{%- else -%}
-	<meta content="{{ site.title }}" property="og:title" />
-	{%- endif -%} {%- if page.title -%}
-	<meta content="article" property="og:type" />
+		{%- assign page_title = site.title | append: ' · ' | append: site.description -%}
+	{%- endif -%}
+	{%- if page.description -%}
+		{%- assign page_desc = page.description -%}
+	{%- elsif page.excerpt -%}
+		{%- assign page_desc = page.excerpt | strip_html | strip_newlines | truncate: 180 -%}
 	{%- else -%}
-	<meta content="website" property="og:type" />
-	{%- endif -%} {%- if page.description -%}
-	<meta content="{{ page.description }}" property="og:description" />
+		{%- assign page_desc = site.description -%}
+	{%- endif -%}
+	{%- if page.image -%}
+		{%- assign page_image = page.image | prepend: '/assets/img/' | prepend: site.url -%}
 	{%- else -%}
-	<meta content="{{ site.description }}" property="og:description" />
-	{%- endif -%} {%- if page.url -%}
-	<meta content="{{ site.url }}{{ page.url }}" property="og:url" />
-	{%- endif -%} {%- if page.date -%}
-	<meta
-		content="{{ page.date | date_to_xmlschema }}"
-		property="article:published_time"
-	/>
-	<meta content="{{ site.url }}/about/" property="article:author" />
-	{%- endif -%} {%- if page.image -%}
-	<meta
-		content="{{ site.url }}/assets/img/{{ page.image }}"
-		property="og:image"
-	/>
-	{%- else -%}
-	<meta
-		content="{{ '/assets/img/drink20LeftHeader.png' | prepend: site.url }}"
-		property="og:image"
-	/>
+		{%- assign page_image = '/assets/img/og-default.png' | prepend: site.url -%}
 	{%- endif -%}
 
-	<!-- Twitter Cards -->
-	<meta name="twitter:card" content="summary" />
-	<meta name="twitter:site" content="@{{ site.social.twitter }}" />
-	<meta name="twitter:creator" content="@{{ site.social.twitter }}" />
-	{%- if page.title -%}
-	<meta name="twitter:title" content="{{ page.title }}" />
-	{%- else -%}
-	<meta name="twitter:title" content="{{ site.title }}" />
-	{%- endif -%} {%- if page.url -%}
-	<meta name="twitter:url" content="{{ site.url }}{{ page.url }}" />
-	{%- endif -%} {%- if page.description -%}
-	<meta name="twitter:description" content="{{ page.description }}" />
-	{%- else -%}
-	<meta name="twitter:description" content="{{ site.description }}" />
-	{%- endif -%} {%- if page.image -%}
-	<meta
-		name="twitter:image:src"
-		content="{{ site.url }}/assets/img/{{ page.image }}"
-	/>
-	{%- else -%}
-	<meta
-		name="twitter:image:src"
-		content="{{ '/assets/img/drink20LeftHeader.png' | prepend: site.url }}"
-	/>
-	{%- endif -%}
+	<title>{{ page_title }}</title>
+	<meta name="description" content="{{ page_desc }}" />
+	<link rel="canonical" href="{{ page.url | replace:'index.html','' | prepend: site.url }}" />
 
-	<!-- Favicon -->
+	<!-- Open Graph -->
+	<meta property="og:site_name" content="{{ site.title }}" />
+	<meta property="og:title" content="{{ page.title | default: site.title }}" />
+	<meta property="og:description" content="{{ page_desc }}" />
+	<meta property="og:type" content="{% if page.date %}article{% else %}website{% endif %}" />
+	<meta property="og:url" content="{{ page.url | prepend: site.url }}" />
+	<meta property="og:image" content="{{ page_image }}" />
+	{%- if page.date %}
+	<meta property="article:published_time" content="{{ page.date | date_to_xmlschema }}" />
+	{%- endif %}
+
+	<!-- Twitter -->
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content="{{ page.title | default: site.title }}" />
+	<meta name="twitter:description" content="{{ page_desc }}" />
+	<meta name="twitter:image" content="{{ page_image }}" />
+
+	<!-- Icons -->
 	<link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico" />
+	<link rel="apple-touch-icon" href="/assets/img/d20-mark-180.png" />
+	<meta name="theme-color" content="#10131a" />
 
-	<!-- Come and get me RSS readers -->
-	<link rel="alternate" type="application/rss+xml" title="{{ site.title }}"
-	href="{{ "/feed.xml" | prepend: site.url }}" />
+	<!-- Feed -->
+	<link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ '/feed.xml' | prepend: site.url }}" />
 
-	<!-- Stylesheet -->
-	<link rel="stylesheet" href="/assets/css/style.css" />
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" />
 
-	<!-- Canonical URL -->
-	<link
-		rel="canonical"
-		href="{{ page.url | replace:'index.html','' | prepend: site.url }}"
-	/>
+	<link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}" />
 
-	{%- if site.google_analytics -%} {%- include google_analytics.html -%} {%-
-	endif -%}
+	{%- comment -%}
+	Apply the saved mode before first paint so light-mode users never get a
+	flash of dark. Dark is the default when nothing has been chosen.
+	{%- endcomment -%}
+	<script>
+		(function () {
+			try {
+				if (localStorage.getItem("d20-theme") === "light") {
+					document.documentElement.setAttribute("data-theme", "light");
+				}
+			} catch (e) {}
+		})();
+	</script>
+
+	{%- if site.google_analytics and jekyll.environment == 'production' -%}
+		{%- include google_analytics.html -%}
+	{%- endif -%}
 </head>

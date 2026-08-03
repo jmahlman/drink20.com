@@ -1,0 +1,86 @@
+/* ===========================================================================
+   ROUGE SYNTAX HIGHLIGHTING
+   Derived from the theme tokens, so it works in both dark and light mode.
+   =========================================================================== */
+
+.highlight {
+	background: var(--surface-2);
+	border-radius: var(--radius-lg);
+}
+
+.highlight .c,
+.highlight .c1,
+.highlight .cm,
+.highlight .cs {
+	color: var(--text-muted);
+	font-style: italic;
+}
+
+.highlight .k,
+.highlight .kd,
+.highlight .kn,
+.highlight .kp,
+.highlight .kr,
+.highlight .kt {
+	color: var(--accent);
+	font-weight: 600;
+}
+
+.highlight .s,
+.highlight .s1,
+.highlight .s2,
+.highlight .sb,
+.highlight .sc,
+.highlight .sd,
+.highlight .se,
+.highlight .sh,
+.highlight .si,
+.highlight .sx,
+.highlight .sr {
+	color: var(--highlight);
+}
+
+.highlight .m,
+.highlight .mf,
+.highlight .mh,
+.highlight .mi,
+.highlight .mo,
+.highlight .il {
+	color: var(--highlight);
+}
+
+.highlight .n,
+.highlight .na,
+.highlight .nb,
+.highlight .nc,
+.highlight .nf,
+.highlight .nn,
+.highlight .nt,
+.highlight .nv {
+	color: var(--text);
+}
+
+.highlight .o,
+.highlight .ow,
+.highlight .p {
+	color: var(--text-muted);
+}
+
+.highlight .err {
+	color: var(--accent);
+	background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.highlight .gd {
+	color: var(--accent);
+}
+
+.highlight .gi {
+	color: var(--highlight);
+}
+
+.lineno {
+	color: var(--text-muted);
+	opacity: 0.6;
+	user-select: none;
+}
