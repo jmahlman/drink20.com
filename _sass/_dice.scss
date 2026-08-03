@@ -1,6 +1,14 @@
 /* ===========================================================================
-   Hidden roll — the "d20" Easter egg. Geometry is set inline by dice.js;
-   this file only handles staging and surface treatment.
+   Hidden roll — the dice-notation Easter egg ("d20", "3d10", "4d6"...).
+   Geometry is set inline by dice.js as custom properties; this file only
+   handles staging and surface treatment.
+
+   Per-face properties set by the script:
+     --clip      the face's outline, already in percentages
+     --cx/--cy   the face centroid's position inside the element
+     --rim       inset scale that leaves an even black edge
+     --face-bg   the shaded body colour
+     --pip-size  numeral size, scaled to the face
    =========================================================================== */
 
 .dice-overlay {
@@ -15,61 +23,62 @@
 	perspective: 1100px;
 }
 
+/* A positioned area rather than a row: dice.js scatters the dice inside it,
+   so they land in a loose cluster instead of a tidy line. Sized inline. */
 .dice-tray {
-	display: flex;
-	align-items: center;
-	gap: clamp(1.5rem, 6vw, 5rem);
+	position: relative;
 	transform-style: preserve-3d;
 }
 
 .dice-drop {
+	position: absolute;
 	transform-style: preserve-3d;
 	filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.45));
 }
 
-.d20 {
+.die {
 	position: relative;
 	transform-style: preserve-3d;
 	/* dice.js sets width/height from the computed circumradius. */
 }
 
-.d20__face {
+.die__face {
 	position: absolute;
 	top: 0;
 	left: 0;
-	/* matrix3d from dice.js maps this box onto the triangle's plane, so the
+	/* matrix3d from dice.js maps this box onto the face's plane, so the
 	   element's own origin has to sit at its top-left corner. */
 	transform-origin: 0 0;
 	backface-visibility: hidden;
-	clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+	clip-path: var(--clip);
 	/* This layer is the black edge; ::before is the shaded body sitting on top
 	   of it, inset just enough to leave a rim — the same heavy black linework
 	   as the logo. */
 	background: var(--d20-edge);
 }
 
-.d20__face::before {
+.die__face::before {
 	content: "";
 	position: absolute;
 	inset: 0;
-	clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+	clip-path: var(--clip);
 	background: var(--face-bg, var(--d20-face));
-	/* Scaling a triangle about its centroid shrinks its inradius by the same
-	   factor, so the rim comes out an even width on all three sides. */
-	transform: scale(0.87);
-	transform-origin: 50% 66.6%;
+	/* Scaling a polygon about its centroid shrinks its inradius by the same
+	   factor, so the rim comes out an even width on every edge. dice.js works
+	   out the factor from each face's actual inradius. */
+	transform: scale(var(--rim, 0.87));
+	transform-origin: var(--cx, 50%) var(--cy, 50%);
 }
 
-.d20__pip {
+.die__pip {
 	position: absolute;
-	left: 50%;
-	/* Centroid of a triangle sits two-thirds of the way down from the apex. */
-	top: 66.6%;
+	left: var(--cx, 50%);
+	top: var(--cy, 50%);
 	z-index: 1;
 	transform: translate(-50%, -50%);
 	font-family: var(--font-brand);
 	font-weight: 700;
-	font-size: 1.6rem;
+	font-size: var(--pip-size, 1.4rem);
 	letter-spacing: 0.02em;
 	line-height: 1;
 	color: #fff;
@@ -83,7 +92,7 @@
 }
 
 /* The dice-maker's convention for telling 6 from 9. */
-.d20__pip--bar {
+.die__pip--bar {
 	text-decoration: underline;
 	text-decoration-thickness: 2px;
 	text-underline-offset: 3px;
