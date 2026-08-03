@@ -1,0 +1,41 @@
+/* ===========================================================================
+   COPPERPLATE — the brand face, self-hosted.
+   Matches the type in the Drink20 logo lockup.
+
+   Used ONLY for the masthead wordmark (.brand). Two reasons to keep it there:
+   lowercase maps to small caps, so any text set in it comes out as caps
+   regardless of source casing; and it has no arrow glyphs (U+2190 / U+2192),
+   which the UI uses in several places — they'd render as blanks.
+
+   All three weights are declared, but browsers only download the one that's
+   actually rendered, so trying another weight costs nothing until it's used.
+
+   Served as .otf (~34 KB). woff2 would save another ~35% but needs fonttools
+   or woff2_compress, neither of which is installed here.
+   =========================================================================== */
+
+@font-face {
+	font-family: "OPTI Copperplate";
+	src: url("/assets/fonts/copperplate/OPTICopperplate-Light.otf")
+		format("opentype");
+	font-weight: 300;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "OPTI Copperplate";
+	src: url("/assets/fonts/copperplate/OPTICopperplate.otf") format("opentype");
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "OPTI Copperplate";
+	src: url("/assets/fonts/copperplate/OPTICopperplate-Heavy.otf")
+		format("opentype");
+	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
+}

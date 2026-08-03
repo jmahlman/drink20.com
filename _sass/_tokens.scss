@@ -30,8 +30,14 @@
 	--container-narrow: 44rem;
 
 	/* --- Type ------------------------------------------------------------ */
+	/* The brand face, used only for the masthead wordmark. It's a caps/small-caps
+	   font with no arrow glyphs, so it's deliberately kept off general UI. */
+	--font-brand: "OPTI Copperplate", "Copperplate", "Copperplate Gothic Light",
+		Georgia, serif;
 	--font-display: "Space Grotesk", "Helvetica Neue", sans-serif;
 	--font-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+	--display-weight: 700;
+	--display-spacing: -0.02em;
 
 	/* --- Shape ----------------------------------------------------------- */
 	--radius: 10px;
@@ -58,6 +64,9 @@
 	--header-bg: rgba(16, 19, 26, 0.82);
 	--hero-bg: var(--bg-alt);
 	--footer-bg: var(--bg-alt);
+
+	/* Hero headline: brand red on dark, near-black on light. */
+	--hero-title: var(--accent);
 
 	/* The d20 watermark is a fixed-colour PNG, so it's dialled in per mode. */
 	--die-opacity: 0.14;
@@ -97,6 +106,8 @@
 	--shadow-lg: 0 20px 40px -28px rgba(20, 20, 15, 0.35);
 
 	--header-bg: rgba(248, 248, 246, 0.85);
+
+	--hero-title: var(--text);
 
 	--die-opacity: 0.09;
 

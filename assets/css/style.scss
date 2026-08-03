@@ -7,6 +7,7 @@
 // with a light mode under [data-theme="light"]. Fonts are loaded via a
 // preconnected <link> in _includes/head.html so they don't block this file.
 
+@import "fonts";
 @import "tokens";
 @import "base";
 @import "layout";
