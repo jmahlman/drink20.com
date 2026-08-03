@@ -17,22 +17,24 @@ on:
 
 env:
   RSS_FEED_URL: ${{ vars.RSS_FEED_URL || 'https://drink20.com/feed' }}
+  # Bluesky's hard blob limit is 1,000,000 bytes. Leave headroom.
+  MAX_THUMB_BYTES: "950000"
 
 permissions:
   contents: write
-  
+
 jobs:
   fetch-and-post:
     runs-on: ubuntu-latest
 
     steps:
-      # Initial delay
+      # Initial delay so the Pages deploy has settled
       - name: Initial Delay
         run: sleep 30
 
       # Checkout repository to access posted URLs tracking
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -53,7 +55,7 @@ jobs:
         id: fetch_post
         run: |
           # Fetch RSS feed
-          response=$(curl -s "$RSS_FEED_URL")
+          response=$(curl -s --max-time 30 "$RSS_FEED_URL")
 
           # Check if we got a response
           if [[ -z "$response" ]]; then
@@ -70,22 +72,16 @@ jobs:
 
           # Parse based on feed type
           if [[ "$FEED_TYPE" == "atom" ]]; then
-            # Atom feed parsing
-            # Atom uses <entry> instead of <item>, <summary> or <content> instead of <description>
+            # Atom uses <entry>, <summary>/<content>, link@href, <published>/<updated>
             description=$(echo "$response" | xmllint --xpath "string(//*[local-name()='entry'][1]/*[local-name()='summary'])" - 2>/dev/null || echo "")
 
-            # If no summary, try content
             if [[ -z "$description" ]]; then
               description=$(echo "$response" | xmllint --xpath "string(//*[local-name()='entry'][1]/*[local-name()='content'])" - 2>/dev/null || echo "")
             fi
 
-            # Get title
             title=$(echo "$response" | xmllint --xpath "string(//*[local-name()='entry'][1]/*[local-name()='title'])" - 2>/dev/null || echo "")
-
-            # Atom links are in attributes, not text nodes
             url=$(echo "$response" | xmllint --xpath "string(//*[local-name()='entry'][1]/*[local-name()='link']/@href)" - 2>/dev/null || echo "")
 
-            # Atom uses <updated> or <published> instead of <pubDate>
             pub_date=$(echo "$response" | xmllint --xpath "string(//*[local-name()='entry'][1]/*[local-name()='published'])" - 2>/dev/null || echo "")
             if [[ -z "$pub_date" ]]; then
               pub_date=$(echo "$response" | xmllint --xpath "string(//*[local-name()='entry'][1]/*[local-name()='updated'])" - 2>/dev/null || echo "")
@@ -97,50 +93,45 @@ jobs:
             pub_date=$(echo "$response" | xmllint --xpath "string(//item[1]/pubDate)" - 2>/dev/null || echo "")
             title=$(echo "$response" | xmllint --xpath "string(//item[1]/title)" - 2>/dev/null || echo "")
 
-            # If that didn't work, try alternative approaches
+            # Retry ignoring namespaces
             if [[ -z "$title" ]] || [[ -z "$url" ]]; then
-              # Try using local-name() to ignore namespaces
               description=$(echo "$response" | xmllint --xpath "string(//*[local-name()='item'][1]/*[local-name()='description'])" - 2>/dev/null || echo "")
               url=$(echo "$response" | xmllint --xpath "string(//*[local-name()='item'][1]/*[local-name()='link'])" - 2>/dev/null || echo "")
               pub_date=$(echo "$response" | xmllint --xpath "string(//*[local-name()='item'][1]/*[local-name()='pubDate'])" - 2>/dev/null || echo "")
               title=$(echo "$response" | xmllint --xpath "string(//*[local-name()='item'][1]/*[local-name()='title'])" - 2>/dev/null || echo "")
             fi
 
-            # Still didn't work? Try with content:encoded for description (common in WordPress)
+            # Fall back to content:encoded
             if [[ -z "$description" ]]; then
               echo "Trying content:encoded for description..."
               description=$(echo "$response" | xmllint --xpath "string(//*[local-name()='item'][1]/*[local-name()='encoded'])" - 2>/dev/null || echo "")
             fi
           fi
 
-          # Strip HTML tags if present
+          # Strip HTML tags and collapse whitespace
           description=$(echo "$description" | sed 's/<[^>]*>//g' | sed 's/&[^;]*;//g' | tr -s ' ' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
           title=$(echo "$title" | sed 's/<[^>]*>//g' | sed 's/&[^;]*;//g' | tr -s ' ' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
 
-          # Log parsed data
-          echo "Parsed Data - Title: $title, Description: $description, URL: $url, PubDate: $pub_date"
+          echo "Parsed Data - Title: $title, URL: $url, PubDate: $pub_date"
 
-          # Handle parsing errors
           if [[ -z "$title" ]] || [[ -z "$url" ]]; then
             echo "Error: Failed to parse title or URL from the feed."
             echo "Feed type: $FEED_TYPE"
-            echo "Please check the feed structure manually."
             exit 1
           fi
 
-          # Check if URL has already been posted
+          # Skip if we've already posted this URL
           POSTED_FILE=".github/bluesky-posted-urls.txt"
           if [[ -f "$POSTED_FILE" ]] && grep -Fxq "$url" "$POSTED_FILE"; then
-            echo "This URL has already been posted to Bluesky: $url"
+            echo "Already posted to Bluesky: $url"
             echo "Exiting to prevent duplicate post."
             exit 0
           fi
 
-          # Extract and compare dates (skip if override is enabled)
+          # Date check (unless overridden)
           if [[ "${{ inputs.skip_date_check }}" == "true" ]]; then
             echo "Skipping date check"
           else
-            # Only check date if we have a pub_date
             if [[ -n "$pub_date" ]]; then
               today=$(date -u +%Y-%m-%d)
               pub_date_parsed=$(date -d "$pub_date" -u +%Y-%m-%d 2>/dev/null || echo "PARSE_ERROR")
@@ -154,71 +145,107 @@ jobs:
             fi
           fi
 
-          # Format and export environment variables
-          # Create custom post text
-          preview="New post on Drink20.com! : ${title} ${url}"
+          # Build the post text
+          prefix="New post on Drink20.com! : "
 
-          # Verify it fits in Bluesky's 300 character limit
-          if [[ ${#preview} -gt 300 ]]; then
-            echo "Post exceeds 300 characters, truncating title..."
+          # Bluesky counts graphemes, but bytes are the safer bound here.
+          # prefix (27) + space between title and url (1) = 28
+          base_text_length=28
+          url_length=${#url}
+          max_title_length=$((300 - base_text_length - url_length - 3))
 
-            # Calculate how much space we have for the title
-            base_text_length=47
-            url_length=${#url}
-            max_title_length=$((300 - base_text_length - url_length - 3))
-
-            if [[ ${#title} -gt $max_title_length ]]; then
-              title="${title:0:$max_title_length}..."
-            fi
-
-            preview="New post on Drink20.com! : ${title} ${url}"
+          if [[ ${#title} -gt $max_title_length ]]; then
+            echo "Truncating title to fit 300 character limit..."
+            title="${title:0:$max_title_length}..."
           fi
 
-          # Export variables
-          echo "preview=$preview" >> $GITHUB_ENV
-          echo "rss_url=$url" >> $GITHUB_ENV
-          echo "preview=$preview" >> $GITHUB_OUTPUT
-          echo "rss_url=$url" >> $GITHUB_OUTPUT
+          preview="${prefix}${title} ${url}"
+          echo "Post length: ${#preview}"
+
+          # Export via multiline-safe heredoc syntax
+          {
+            echo "preview<<POST_EOF"
+            echo "$preview"
+            echo "POST_EOF"
+            echo "rss_url=$url"
+          } >> "$GITHUB_OUTPUT"
 
           echo "Ready to post: $title"
 
-      # Shrink the images to fit bluesky's image limit (if there are any)
-      - name: Install ImageMagick
-        run: sudo apt-get update && sudo apt-get install -y imagemagick
-        
-      - name: Compress social images
+      # Check whether the live page's og:image will fit Bluesky's blob limit.
+      # The bluesky-post action downloads this image from the deployed site,
+      # NOT from the repo checkout, so this has to be measured over the network.
+      - name: Check og:image size
+        id: og_check
+        if: steps.fetch_post.outputs.rss_url != ''
         run: |
-          shopt -s nullglob
-          for img in assets/social/*.png; do
-            echo "Optimizing $img"
-            # More aggressive compression to meet Bluesky's 1MB limit
-            convert "$img" \
-              -resize 2000x2000\> \
-              -quality 75 \
-              -strip \
-              -interlace Plane \
-              -colorspace sRGB \
-              "$img"
-            
-            # Verify file size is under 1MB
-            size=$(stat -f%z "$img" 2>/dev/null || stat -c%s "$img")
-            if (( size > 1000000 )); then
-              echo "Warning: $img is still over 1MB ($size bytes). Further compression needed."
-              # Apply even more aggressive compression
-              convert "$img" \
-                -resize 1500x1500\> \
-                -quality 65 \
-                -strip \
-                -interlace Plane \
-                -colorspace sRGB \
-                "$img"
-            fi
-            ls -lh "$img"
-          done
+          post_url="${{ steps.fetch_post.outputs.rss_url }}"
+          page=$(curl -sL --max-time 30 "$post_url" || echo "")
 
-      # Post to Bluesky
-      - name: Post to Bluesky
-        if: steps.fetch_post.outputs.preview != '' && steps.fetch_post.outputs.rss_url != ''
+          if [[ -z "$page" ]]; then
+            echo "Could not fetch post page. Falling back to plain text."
+            echo "card=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Split tags onto their own lines, then pull the og:image content value
+          og=$(printf '%s' "$page" \
+            | sed 's/>/>\n/g' \
+            | grep -i 'property="og:image"' \
+            | grep -oP 'content="\K[^"]+' \
+            | head -1 || echo "")
+
+          if [[ -z "$og" ]]; then
+            echo "No og:image found on the page. Posting without a card."
+            echo "card=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Resolve a root-relative og:image against the site origin
+          if [[ "$og" == /* ]]; then
+            origin=$(printf '%s' "$post_url" | grep -oP '^https?://[^/]+' || echo "")
+            og="${origin}${og}"
+          fi
+
+          echo "og:image = $og"
+
+          # Prefer a HEAD request; fall back to downloading if no Content-Length
+          size=$(curl -sIL --max-time 30 "$og" \
+            | awk 'tolower($1) == "content-length:" { print $2 }' \
+            | tr -d '\r' | tail -1 || echo "")
+
+          if [[ ! "$size" =~ ^[0-9]+$ ]]; then
+            echo "No Content-Length header, downloading to measure..."
+            if curl -sL --max-time 60 -o /tmp/og_image "$og"; then
+              size=$(stat -c%s /tmp/og_image)
+            else
+              size=""
+            fi
+          fi
+
+          if [[ ! "$size" =~ ^[0-9]+$ ]]; then
+            echo "Could not determine og:image size. Posting without a card to be safe."
+            echo "card=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "og:image size: $size bytes (limit $MAX_THUMB_BYTES)"
+
+          if (( size > MAX_THUMB_BYTES )); then
+            echo "::warning::og:image is $size bytes, over the ${MAX_THUMB_BYTES} byte limit. Posting without a link card."
+            echo "card=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "card=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "og_image=$og" >> "$GITHUB_OUTPUT"
+          echo "og_size=$size" >> "$GITHUB_OUTPUT"
+
+      # Preferred path: post with the link preview card
+      - name: Post to Bluesky (with link card)
+        id: post_card
+        if: steps.fetch_post.outputs.preview != '' && steps.og_check.outputs.card == 'true'
+        continue-on-error: true
         uses: myConsciousness/bluesky-post@v5
         with:
           text: "${{ steps.fetch_post.outputs.preview }}"
@@ -226,15 +253,31 @@ jobs:
           identifier: ${{ secrets.BLUESKY_IDENTIFIER }}
           password: ${{ secrets.BLUESKY_PASSWORD }}
 
-      # Track posted URL to prevent duplicates
+      # Fallback: plain text post. The URL is already in the text, so it still
+      # renders as a clickable link, just without the image card.
+      - name: Post to Bluesky (plain text fallback)
+        id: post_plain
+        if: >-
+          steps.fetch_post.outputs.preview != '' &&
+          (steps.og_check.outputs.card != 'true' || steps.post_card.outcome == 'failure')
+        uses: myConsciousness/bluesky-post@v5
+        with:
+          text: "${{ steps.fetch_post.outputs.preview }}"
+          identifier: ${{ secrets.BLUESKY_IDENTIFIER }}
+          password: ${{ secrets.BLUESKY_PASSWORD }}
+
+      # Track posted URL to prevent duplicates. Only runs if a post landed.
       - name: Record Posted URL
-        if: success() && steps.fetch_post.outputs.rss_url != ''
+        id: record
+        if: >-
+          steps.post_card.outcome == 'success' ||
+          steps.post_plain.outcome == 'success'
         run: |
           POSTED_FILE=".github/bluesky-posted-urls.txt"
           mkdir -p .github
           echo "${{ steps.fetch_post.outputs.rss_url }}" >> "$POSTED_FILE"
 
-          # Keep only the last 100 URLs to prevent file from growing too large
+          # Keep only the last 100 URLs
           if [[ $(wc -l < "$POSTED_FILE") -gt 100 ]]; then
             tail -n 100 "$POSTED_FILE" > "$POSTED_FILE.tmp"
             mv "$POSTED_FILE.tmp" "$POSTED_FILE"
@@ -242,23 +285,25 @@ jobs:
 
       # Commit the updated tracking file
       - name: Commit Posted URLs
-        if: success() && steps.fetch_post.outputs.rss_url != ''
+        if: steps.record.outcome == 'success'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .github/bluesky-posted-urls.txt
 
-          # Check if there are changes to commit
           if ! git diff --staged --quiet; then
             git commit -m "Track posted URL"
             git push
           fi
 
-      # Debug step: Print environment variables
-      - name: Debug Environment Variables
+      - name: Summary
         if: always()
         run: |
-          echo "Preview Text: ${{ steps.fetch_post.outputs.preview }}"
-          echo "RSS URL: ${{ steps.fetch_post.outputs.rss_url }}"
           echo "RSS Feed URL: $RSS_FEED_URL"
-          echo "Fetch step conclusion: ${{ steps.fetch_post.conclusion }}"
+          echo "Post URL: ${{ steps.fetch_post.outputs.rss_url }}"
+          echo "Preview Text: ${{ steps.fetch_post.outputs.preview }}"
+          echo "og:image: ${{ steps.og_check.outputs.og_image }}"
+          echo "og:image size: ${{ steps.og_check.outputs.og_size }}"
+          echo "Card eligible: ${{ steps.og_check.outputs.card }}"
+          echo "Card post outcome: ${{ steps.post_card.outcome }}"
+          echo "Plain post outcome: ${{ steps.post_plain.outcome }}"
