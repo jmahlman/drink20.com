@@ -21,25 +21,63 @@
 	min-height: 4.5rem;
 }
 
+/* The masthead lockup: die + wordmark, with the tagline tucked underneath and
+   aligned to the wordmark rather than the die — the way the logo art sets it. */
 .brand {
+	display: flex;
+	flex-direction: column;
+	gap: 0.28em;
+	font-family: var(--font-brand);
+	/* 700 is Copperplate CC's "Bold"; the 400 cut is too light to hold the
+	   masthead, and using one weight keeps this to a single font request. */
+	font-weight: 700;
+	line-height: 1;
+}
+
+.brand__link {
 	display: inline-flex;
 	align-items: center;
 	gap: var(--space-2xs);
 	color: var(--text);
 	text-decoration: none;
-	font-family: var(--font-brand);
-	/* 700 is Copperplate CC's "Bold"; the 400 cut is too light to hold the
-	   masthead at this size. */
-	font-weight: 700;
 	/* Copperplate is a caps face and wants air between the letters. */
 	letter-spacing: 0.06em;
 	font-size: var(--step-1);
-	line-height: 1;
 	white-space: nowrap;
 }
 
-.brand:hover {
+.brand__link:hover {
 	color: var(--text);
+}
+
+.brand__tagline {
+	/* Indent past the die so the tagline hangs off the wordmark, not the icon:
+	   mark width (2.3rem) + the flex gap. */
+	margin-left: calc(2.3rem + var(--space-2xs));
+	font-size: 0.6rem;
+	letter-spacing: 0.16em;
+	color: var(--text-muted);
+	white-space: nowrap;
+}
+
+/* Below this the masthead needs the room for the toggle and menu button.
+   Copperplate caps are wide, so the wordmark comes down a size too or it
+   squeezes the buttons past the container padding. */
+@media (max-width: 36rem) {
+	.brand__tagline {
+		display: none;
+	}
+
+	.brand__link {
+		font-size: 0.95rem;
+		letter-spacing: 0.04em;
+		gap: var(--space-3xs);
+	}
+
+	.brand__mark {
+		width: 1.9rem;
+		height: 1.9rem;
+	}
 }
 
 .brand__mark {
@@ -50,11 +88,11 @@
 }
 
 /* 72° is one face of a d20 — the die lands back on itself. */
-.brand:hover .brand__mark {
+.brand__link:hover .brand__mark {
 	transform: rotate(72deg);
 }
 
-.brand__text .brand__accent {
+.brand__accent {
 	color: var(--accent);
 }
 

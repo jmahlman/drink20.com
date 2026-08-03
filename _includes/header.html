@@ -1,19 +1,26 @@
 <header class="masthead">
 	<div class="container masthead__inner">
-		<a class="brand" href="{{ '/' | relative_url }}">
-			{%- comment -%}
-			The blank die reads cleaner at 37px — the wordmark beside it already
-			says "20", so the numeral in the icon is just noise at this size.
-			{%- endcomment -%}
-			<img
-				class="brand__mark"
-				src="{{ '/assets/img/d20-blank-128.png' | relative_url }}"
-				alt=""
-				width="128"
-				height="128"
-			/>
-			<span class="brand__text">Drink<span class="brand__accent">20</span> Philly</span>
-		</a>
+		{%- comment -%}
+		The tagline sits outside the link so the home link reads as just the
+		group's name, rather than name-plus-tagline, to a screen reader.
+		{%- endcomment -%}
+		<div class="brand">
+			<a class="brand__link" href="{{ '/' | relative_url }}">
+				{%- comment -%}
+				The blank die reads cleaner at 37px — the wordmark beside it already
+				says "20", so the numeral in the icon is just noise at this size.
+				{%- endcomment -%}
+				<img
+					class="brand__mark"
+					src="{{ '/assets/img/d20-blank-128.png' | relative_url }}"
+					alt=""
+					width="128"
+					height="128"
+				/>
+				<span class="brand__name">Drink<span class="brand__accent">20</span> Philly</span>
+			</a>
+			<p class="brand__tagline">{{ site.description }}</p>
+		</div>
 
 		<div class="masthead__actions">
 			{%- include theme-toggle.html -%}
