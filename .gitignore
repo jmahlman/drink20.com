@@ -6,3 +6,4 @@ vendor
 _test_posts
 **/.DS_Store
 **.DS_Store
+.claude/settings.local.json

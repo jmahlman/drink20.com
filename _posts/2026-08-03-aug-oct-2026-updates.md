@@ -10,6 +10,5 @@ Joyous summer, fellow adventurers! The sun is bright, the temperatures are high,
 
 Late summer and early autumn are shaping up to be a little chaotic regarding scheduling, so please keep your eye on [our Facebook page](https://www.facebook.com/drink20Philly/) for the most up to date information. Until then, we hope you’re staying cool!
 
-Cheers,
-<p class="intro"><span class="dropcap">A</span>lessa</p>
-<br>
+Cheers,  
+Alessa
