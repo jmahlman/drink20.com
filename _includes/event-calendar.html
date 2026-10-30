@@ -69,15 +69,38 @@ comma-separated string and split back out.
 				{%- assign event_ymd = event.date | date: "%Y-%m-%d" -%}
 				{%- if event_ymd == cell_ymd -%}
 				{%- assign label = event.short | default: event.title -%}
-				{%- capture chip -%}
-				<span class="cal__event-time">{% include event-time.html event=event only_start=true %}</span>
-				<span class="cal__event-name">{{ label | escape }}</span>
-				{%- endcapture -%}
-				{%- if event.link -%}
-				<a class="cal__event" href="{{ event.link }}" title="{{ event.title | escape }}">{{ chip }}</a>
-				{%- else -%}
-				<span class="cal__event" title="{{ event.title | escape }}">{{ chip }}</span>
-				{%- endif -%}
+				{%- comment -%}
+				The chip opens the details rather than going straight to Facebook:
+				a cell has room for a time and a few words, and everything else —
+				the full name, the location, the link — lives in the panel. The
+				panel is held open by :hover or :focus-within on the wrapper, so
+				moving the pointer into it to click the link keeps it open, and
+				tapping or tabbing to the chip works the same way.
+				{%- endcomment -%}
+				<div class="cal__event-wrap">
+					<button type="button" class="cal__event">
+						<span class="cal__event-time">{% include event-time.html event=event only_start=true %}</span>
+						<span class="cal__event-name">{{ label | escape }}</span>
+					</button>
+					<div class="cal__popover">
+						<p class="cal__popover-title">{{ event.title | escape }}</p>
+						<p class="cal__popover-meta">
+							{{ event.date | date: "%A, %B %-d" }} &middot;
+							{% include event-time.html event=event %}
+						</p>
+						{%- if event.location %}
+						<p class="cal__popover-meta">{{ event.location | escape }}</p>
+						{%- endif %}
+						{%- if event.details %}
+						<p class="cal__popover-details">{{ event.details | escape }}</p>
+						{%- endif %}
+						{%- if event.link %}
+						<p class="cal__popover-link">
+							<a class="button button--ghost button--small" href="{{ event.link }}">Facebook event</a>
+						</p>
+						{%- endif %}
+					</div>
+				</div>
 				{%- endif -%}
 				{%- endfor -%}
 			{%- endcapture -%}
