@@ -59,8 +59,12 @@ comma-separated string and split back out.
 			{%- if dnum >= 1 and dnum <= days -%}
 			{%- assign offset = dnum | minus: 1 | times: 86400 -%}
 			{%- assign cell_ymd = first_epoch | plus: offset | date: "%Y-%m-%d" -%}
-			<td class="cal__cell{% if cell_ymd == today_ymd %} cal__cell--today{% endif %}">
-				<span class="cal__num">{{ dnum }}</span>
+			{%- comment -%}
+			The day's chips are built first so the cell can say whether it holds
+			anything before its opening tag is written — cal__cell--event is what
+			puts the die behind the date.
+			{%- endcomment -%}
+			{%- capture chips -%}
 				{%- for event in site.data.events -%}
 				{%- assign event_ymd = event.date | date: "%Y-%m-%d" -%}
 				{%- if event_ymd == cell_ymd -%}
@@ -76,6 +80,11 @@ comma-separated string and split back out.
 				{%- endif -%}
 				{%- endif -%}
 				{%- endfor -%}
+			{%- endcapture -%}
+			{%- assign chips = chips | strip -%}
+			<td class="cal__cell{% if chips != "" %} cal__cell--event{% endif %}{% if cell_ymd == today_ymd %} cal__cell--today{% endif %}">
+				<span class="cal__num">{{ dnum }}</span>
+				{{- chips -}}
 			</td>
 			{%- else -%}
 			<td class="cal__cell cal__cell--blank"></td>

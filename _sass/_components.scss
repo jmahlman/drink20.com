@@ -244,6 +244,18 @@
 	opacity: 0.62;
 }
 
+/* Exactly one card carries this: the game happening tonight. In the brand
+   face, which is caps by design, so the markup stays sentence case. */
+.event-card__tonight {
+	margin: 0;
+	font-family: var(--font-brand);
+	font-size: var(--step-0);
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	line-height: 1;
+	color: var(--accent);
+}
+
 /* A date block, not a sentence — the whole point is scanning down the column. */
 .event-card__when {
 	flex: none;
@@ -466,12 +478,54 @@
 	text-align: center;
 }
 
+/* A day with a game on it carries the mark behind its date — the job a
+   coloured dot would otherwise do, done with the logo instead. */
+.cal__cell--event .cal__num {
+	position: relative;
+	/* Keeps the negative z-index below from escaping behind the cell. */
+	isolation: isolate;
+	display: inline-grid;
+	place-items: center;
+	width: 1.9rem;
+	height: 1.9rem;
+	color: var(--text);
+}
+
+.cal__cell--event .cal__num::before {
+	content: "";
+	position: absolute;
+	z-index: -1;
+	inset: -0.15rem;
+	background: url("/assets/img/d20-blank-128.png") no-repeat center / contain;
+	/* Far above --die-opacity: at 30 pixels the hero's value is invisible. */
+	opacity: calc(var(--die-opacity) * 2.4);
+	transform: rotate(-12deg);
+}
+
+/* Today with a game on it. The solid today marker sits where the die would
+   be and would hide it, so the cell takes the tint instead — one glance says
+   both "today" and "something's on". */
+.cal__cell--today.cal__cell--event {
+	background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.cal__cell--today.cal__cell--event .cal__num {
+	display: inline-block;
+	width: auto;
+	height: auto;
+	color: var(--accent-contrast);
+}
+
+.cal__cell--today.cal__cell--event .cal__num::before {
+	content: none;
+}
+
 .cal__event {
 	display: block;
 	margin-top: var(--space-3xs);
 	padding: 0.2em 0.4em;
 	border-radius: calc(var(--radius) - 5px);
-	background: color-mix(in srgb, var(--accent) 18%, transparent);
+	background: color-mix(in srgb, var(--accent) 18%, var(--surface));
 	border-left: 2px solid var(--accent);
 	color: var(--text);
 	font-size: var(--step--1);
@@ -480,7 +534,7 @@
 }
 
 a.cal__event:hover {
-	background: color-mix(in srgb, var(--accent) 32%, transparent);
+	background: color-mix(in srgb, var(--accent) 32%, var(--surface));
 	color: var(--text);
 }
 

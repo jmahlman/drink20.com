@@ -71,7 +71,10 @@ Google takes the feed URL as a query value, and uri_escape leaves ":" and
 			{%- for event in site.data.events -%}
 				{%- assign stamp = event.date | date: "%s" | plus: 0 -%}
 				{%- if stamp >= today -%}
-					{% include event-card.html event=event %}
+					{%- assign event_ymd = event.date | date: "%Y-%m-%d" -%}
+					{%- assign is_today = false -%}
+					{%- if event_ymd == today_ymd %}{% assign is_today = true %}{% endif -%}
+					{% include event-card.html event=event today=is_today %}
 				{%- endif -%}
 			{%- endfor -%}
 		</ul>

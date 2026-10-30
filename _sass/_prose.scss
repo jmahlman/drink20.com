@@ -66,6 +66,14 @@
 	text-decoration: none;
 }
 
+/* A card's heading is part of the card, so prose's heading rhythm — which
+   exists to separate sections of text — would push it a long way from the
+   date beside it. The card sets its own spacing with a grid gap. */
+.prose .event-card__title,
+.prose .post-card__title {
+	margin-block: 0;
+}
+
 .prose li + li {
 	margin-top: var(--space-3xs);
 }
