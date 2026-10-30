@@ -30,8 +30,10 @@
 	--container-narrow: 44rem;
 
 	/* --- Type ------------------------------------------------------------ */
-	/* The brand face, used only for the masthead wordmark. It's a caps/small-caps
-	   font with no arrow glyphs, so it's deliberately kept off general UI. */
+	/* The brand face. It's a caps/small-caps font with no arrow glyphs, so it's
+	   deliberately kept off general UI and reserved for display moments: the
+	   masthead wordmark, the rolled dice, and the "Tonight!" label on the event
+	   happening today. */
 	--font-brand: "Copperplate CC", "Copperplate", "Copperplate Gothic Light",
 		Georgia, serif;
 	--font-display: "Space Grotesk", "Helvetica Neue", sans-serif;
