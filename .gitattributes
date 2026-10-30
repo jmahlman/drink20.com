@@ -1,0 +1,5 @@
+# The .ics feed must be served with CRLF line endings (RFC 5545), and Liquid
+# cannot emit a carriage return — so the breaks come from the template files
+# themselves. Pin both so no editor or checkout quietly rewrites them.
+events.ics text eol=crlf
+_includes/ics-fold.html text eol=crlf

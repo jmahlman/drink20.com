@@ -1,0 +1,85 @@
+---
+layout: null
+permalink: /events.ics
+---
+{%- comment -%}
+The subscribable calendar feed (RFC 5545), built from _data/events.yml.
+
+Two things about this file are load-bearing and easy to break:
+
+  1. It is stored with CRLF line endings, because the spec requires them and
+     Liquid has no way to emit a \r. The .gitattributes entry pins that, so
+     editors and git stay out of it. Whitespace control is applied on nearly
+     every tag below, so no stray blank lines land in the output.
+  2. Text fields are escaped for iCalendar, not for HTML: backslash first, then
+     semicolon and comma. Getting that order wrong double-escapes everything.
+
+Times in the data file are local Philly time, written out with TZID against the
+VTIMEZONE block below, so subscribers see 6PM wherever they are.
+{%- endcomment -%}
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Drink20 Philly//Events//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+NAME:{{ site.title }} Events
+X-WR-CALNAME:{{ site.title }} Events
+DESCRIPTION:Tabletop game nights at breweries around Philadelphia.
+X-WR-CALDESC:Tabletop game nights at breweries around Philadelphia.
+X-WR-TIMEZONE:America/New_York
+SOURCE;VALUE=URI:{{ page.url | prepend: site.url }}
+REFRESH-INTERVAL;VALUE=DURATION:PT12H
+X-PUBLISHED-TTL:PT12H
+BEGIN:VTIMEZONE
+TZID:America/New_York
+BEGIN:DAYLIGHT
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0400
+TZNAME:EDT
+DTSTART:19700308T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:-0400
+TZOFFSETTO:-0500
+TZNAME:EST
+DTSTART:19701101T020000
+RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
+END:STANDARD
+END:VTIMEZONE
+{% for event in site.data.events -%}
+{%- assign day = event.date | date: "%Y%m%d" -%}
+{%- assign from = event.start | replace: ":", "" | append: "00" -%}
+{%- assign to = event.end | replace: ":", "" | append: "00" -%}
+{%- assign summary = event.title | strip_newlines | replace: "\", "\\" | replace: ";", "\;" | replace: ",", "\," -%}
+{%- assign place = event.location | strip_newlines | replace: "\", "\\" | replace: ";", "\;" | replace: ",", "\," -%}
+{%- assign details = event.details | strip_newlines | replace: "\", "\\" | replace: ";", "\;" | replace: ",", "\," -%}
+BEGIN:VEVENT
+{% capture line %}UID:{{ day }}T{{ from }}-{{ event.title | slugify }}@drink20.com{% endcapture -%}
+{% include ics-fold.html text=line %}
+DTSTAMP:{{ site.time | date: "%Y%m%dT%H%M%SZ" }}
+DTSTART;TZID=America/New_York:{{ day }}T{{ from }}
+DTEND;TZID=America/New_York:{{ day }}T{{ to }}
+{% capture line %}SUMMARY:{{ summary }}{% endcapture -%}
+{% include ics-fold.html text=line %}
+{% if event.location -%}
+{%- capture line %}LOCATION:{{ place }}{% endcapture -%}
+{% include ics-fold.html text=line %}
+{% endif -%}
+{%- if event.link -%}
+{%- capture line %}URL;VALUE=URI:{{ event.link }}{% endcapture -%}
+{% include ics-fold.html text=line %}
+{% endif -%}
+{%- comment -%}
+DESCRIPTION carries the Facebook link as text too — most mobile calendar apps
+show the notes field but bury or drop the URL property.
+{%- endcomment -%}
+{%- capture line -%}
+DESCRIPTION:{%- if event.details %}{{ details }}\n\n{% endif -%}{%- if event.link %}Facebook event: {{ event.link }}\n\n{% endif -%}More at {{ site.url }}/events
+{%- endcapture -%}
+{% include ics-fold.html text=line %}
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+{% endfor -%}
+END:VCALENDAR

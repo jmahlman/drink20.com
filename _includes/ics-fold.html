@@ -1,0 +1,27 @@
+{%- comment -%}
+Folds one iCalendar content line to the 75-octet limit in RFC 5545 section
+3.1. A fold is CRLF followed by a single space, which the reading client
+strips back out again, so a break can land anywhere -- mid-word, or inside an
+escape sequence.
+
+	text    the already-escaped property value, property name included
+	every   characters per line (default 68, which keeps a plain ASCII line
+	        inside 75 octets with room for a few multi-byte characters, and
+	        leaves short values such as a Facebook URL unfolded)
+
+Two things here look odd and are deliberate:
+
+  - Liquid cannot emit a carriage return, so the fold is a literal CRLF and
+    space in the template text below. This file must stay CRLF; .gitattributes
+    pins it.
+  - The character is repeated in both branches of the if. Liquid treats a
+    block whose body is nothing but whitespace as blank and renders it as an
+    empty string, so a branch holding only the fold would silently vanish.
+{%- endcomment -%}
+{%- assign every = include.every | default: 68 -%}
+{%- assign chars = include.text | split: "" -%}
+{%- for c in chars -%}
+{%- assign boundary = forloop.index0 | modulo: every -%}
+{%- if boundary == 0 and forloop.first == false %}
+ {{ c }}{% else %}{{ c }}{% endif -%}
+{%- endfor -%}

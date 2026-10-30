@@ -1,0 +1,91 @@
+{%- comment -%}
+A month grid per month, drawn from _data/events.yml.
+
+	today_key  the current month as YYYY-MM, in Philly time
+	today_ymd  the current date as YYYY-MM-DD, in Philly time
+
+Months run from the current one forward; a month only gets a grid if it holds
+an event, so the view never trails off into empty squares. Past months stay out
+of it — the list view keeps that history.
+
+The arithmetic leans on the site building in UTC (see _config.yml): with no DST
+to step over, a day really is 86400 seconds, so the length of a month is the
+first of the next month less one day.
+{%- endcomment -%}
+{%- assign today_key = include.today_key -%}
+{%- assign today_ymd = include.today_ymd -%}
+
+{%- comment -%}
+Liquid has no way to append to an array, so the month list is assembled as a
+comma-separated string and split back out.
+{%- endcomment -%}
+{%- assign keys = today_key | append: "," -%}
+{%- for event in site.data.events -%}
+	{%- assign key = event.date | date: "%Y-%m" -%}
+	{%- assign keys = keys | append: key | append: "," -%}
+{%- endfor -%}
+{%- assign months = keys | split: "," | uniq | sort -%}
+
+{%- for month in months -%}
+{%- if month >= today_key -%}
+{%- assign first = month | append: "-01" -%}
+{%- assign first_epoch = first | date: "%s" | plus: 0 -%}
+{%- comment -%} Sunday is 0, which is also how many blanks the first row needs. {%- endcomment -%}
+{%- assign lead = first | date: "%w" | plus: 0 -%}
+{%- comment -%} 32 days lands inside the next month whatever this one's length. {%- endcomment -%}
+{%- assign probe = first_epoch | plus: 2764800 -%}
+{%- assign next_first = probe | date: "%Y-%m-01" | date: "%s" | plus: 0 -%}
+{%- assign days = next_first | minus: 86400 | date: "%-d" | plus: 0 -%}
+{%- assign tail = lead | plus: days | modulo: 7 -%}
+{%- assign tail = 7 | minus: tail | modulo: 7 -%}
+{%- assign total = lead | plus: days | plus: tail -%}
+<table class="cal">
+	<caption class="cal__title">{{ first | date: "%B %Y" }}</caption>
+	<thead>
+		<tr>
+			<th scope="col"><abbr title="Sunday">Su</abbr></th>
+			<th scope="col"><abbr title="Monday">Mo</abbr></th>
+			<th scope="col"><abbr title="Tuesday">Tu</abbr></th>
+			<th scope="col"><abbr title="Wednesday">We</abbr></th>
+			<th scope="col"><abbr title="Thursday">Th</abbr></th>
+			<th scope="col"><abbr title="Friday">Fr</abbr></th>
+			<th scope="col"><abbr title="Saturday">Sa</abbr></th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			{%- for i in (1..total) -%}
+			{%- assign dnum = i | minus: lead -%}
+			{%- if dnum >= 1 and dnum <= days -%}
+			{%- assign offset = dnum | minus: 1 | times: 86400 -%}
+			{%- assign cell_ymd = first_epoch | plus: offset | date: "%Y-%m-%d" -%}
+			<td class="cal__cell{% if cell_ymd == today_ymd %} cal__cell--today{% endif %}">
+				<span class="cal__num">{{ dnum }}</span>
+				{%- for event in site.data.events -%}
+				{%- assign event_ymd = event.date | date: "%Y-%m-%d" -%}
+				{%- if event_ymd == cell_ymd -%}
+				{%- assign label = event.short | default: event.title -%}
+				{%- capture chip -%}
+				<span class="cal__event-time">{% include event-time.html event=event only_start=true %}</span>
+				<span class="cal__event-name">{{ label | escape }}</span>
+				{%- endcapture -%}
+				{%- if event.link -%}
+				<a class="cal__event" href="{{ event.link }}" title="{{ event.title | escape }}">{{ chip }}</a>
+				{%- else -%}
+				<span class="cal__event" title="{{ event.title | escape }}">{{ chip }}</span>
+				{%- endif -%}
+				{%- endif -%}
+				{%- endfor -%}
+			</td>
+			{%- else -%}
+			<td class="cal__cell cal__cell--blank"></td>
+			{%- endif -%}
+			{%- assign edge = i | modulo: 7 -%}
+			{%- if edge == 0 and i < total %}</tr>
+		<tr>{% endif -%}
+			{%- endfor -%}
+		</tr>
+	</tbody>
+</table>
+{%- endif -%}
+{%- endfor -%}

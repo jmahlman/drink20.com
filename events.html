@@ -1,0 +1,111 @@
+---
+layout: page
+title: Events
+description: Every Drink20 game night, in one place. Subscribe once and new dates show up on your own calendar.
+---
+
+{%- comment -%}
+Events live in _data/events.yml and are published here and in /events.ics.
+
+"Upcoming" is anything dated today or later in Philly time. site.time is UTC
+(see _config.yml), so five hours come off before the date is taken — otherwise
+tonight's game would fall off this list at 8PM, which is exactly when people
+are checking it.
+{%- endcomment -%}
+{%- assign philly_now = site.time | date: "%s" | minus: 18000 -%}
+{%- assign today_ymd = philly_now | date: "%Y-%m-%d" -%}
+{%- assign today_key = philly_now | date: "%Y-%m" -%}
+{%- assign today = today_ymd | date: "%s" | plus: 0 -%}
+
+{%- assign upcoming_count = 0 -%}
+{%- for event in site.data.events -%}
+	{%- assign stamp = event.date | date: "%s" | plus: 0 -%}
+	{%- if stamp >= today -%}
+		{%- assign upcoming_count = upcoming_count | plus: 1 -%}
+	{%- endif -%}
+{%- endfor -%}
+
+{%- assign webcal = site.url | remove_first: "https://" | remove_first: "http://" | prepend: "webcal://" | append: "/events.ics" -%}
+{%- comment -%}
+Google takes the feed URL as a query value, and uri_escape leaves ":" and
+"/" untouched, so those two go by hand.
+{%- endcomment -%}
+{%- assign webcal_param = webcal | replace: ":", "%3A" | replace: "/", "%2F" -%}
+
+<div class="subscribe">
+	<h2 class="subscribe__title">Subscribe to the calendar</h2>
+	<p class="subscribe__lede">
+		Pick your calendar app below and every game night lands on it
+		automatically &mdash; including the ones we add later.
+	</p>
+	<p class="subscribe__actions">
+		<a class="button" href="{{ webcal }}">Apple&nbsp;/ Outlook</a>
+		<a class="button button--ghost" href="https://calendar.google.com/calendar/r?cid={{ webcal_param }}">Google Calendar</a>
+		<a class="button button--ghost" href="/events.ics" download>Download&nbsp;.ics</a>
+	</p>
+	<p class="subscribe__note">
+		Rather paste it in yourself? The feed URL is
+		<code>{{ "/events.ics" | prepend: site.url }}</code>.
+	</p>
+</div>
+
+<div class="events-browser">
+	{%- comment -%}
+	A CSS-only switch: the radios carry the state and :has() on the wrapper
+	shows one view at a time. Nothing breaks without it — a browser that
+	cannot match :has() simply shows both views stacked.
+	{%- endcomment -%}
+	<input class="visually-hidden" type="radio" name="events-view" id="events-view-list" checked />
+	<input class="visually-hidden" type="radio" name="events-view" id="events-view-calendar" />
+
+	<div class="view-switch" role="group" aria-label="Choose how to see the schedule">
+		<label class="view-switch__option" for="events-view-list">List</label>
+		<label class="view-switch__option" for="events-view-calendar">Calendar</label>
+	</div>
+
+	<section class="events-view events-view--list" aria-label="Schedule as a list">
+		<h2 id="upcoming">Upcoming</h2>
+
+		{% if upcoming_count > 0 %}
+		<ul class="event-list">
+			{%- for event in site.data.events -%}
+				{%- assign stamp = event.date | date: "%s" | plus: 0 -%}
+				{%- if stamp >= today -%}
+					{% include event-card.html event=event %}
+				{%- endif -%}
+			{%- endfor -%}
+		</ul>
+		{% else %}
+		<p>
+			Nothing on the books right now &mdash; we're between schedules. New dates
+			go up on <a href="https://www.facebook.com/{{ site.social.facebook }}/">our Facebook page</a>
+			and on <a href="/blog">the blog</a> first, and they'll appear here (and on
+			your calendar, if you've subscribed) as soon as they're set.
+		</p>
+		{% endif %}
+
+		{%- assign past_shown = 0 -%}
+		{%- assign past_events = site.data.events | reverse -%}
+		{% if upcoming_count < site.data.events.size %}
+		<h2 id="past">Recent past events</h2>
+
+		<ul class="event-list">
+			{%- for event in past_events -%}
+				{%- assign stamp = event.date | date: "%s" | plus: 0 -%}
+				{%- if stamp < today and past_shown < 6 -%}
+					{%- assign past_shown = past_shown | plus: 1 -%}
+					{% include event-card.html event=event past=true %}
+				{%- endif -%}
+			{%- endfor -%}
+		</ul>
+		{% endif %}
+	</section>
+
+	<section class="events-view events-view--calendar" aria-label="Schedule as a calendar">
+		<h2 class="visually-hidden">Calendar</h2>
+		{% include event-calendar.html today_key=today_key today_ymd=today_ymd %}
+		<p class="cal__note">
+			Months with nothing booked are left out. Past dates live in the list view.
+		</p>
+	</section>
+</div>
