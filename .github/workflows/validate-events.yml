@@ -1,0 +1,22 @@
+name: Validate events.yml
+
+# No path filter. The job takes seconds, and a filtered list is a gap waiting
+# to open — the validator's rules track what _layouts and _includes expect of
+# the data, so a change to either could want checking too.
+
+on:
+  pull_request:
+    branches: ["main"]
+  push:
+    branches: ["main"]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - run: pip install pyyaml
+      - run: python .github/scripts/validate_events.py

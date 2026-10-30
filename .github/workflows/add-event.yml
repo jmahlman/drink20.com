@@ -1,0 +1,100 @@
+name: Add event from issue
+
+# The "Add a game night" issue form becomes a pull request against
+# _data/events.yml. Merging that PR is what puts the event on the site: the
+# push to main is what the Pages deploy watches.
+#
+# Needs "Allow GitHub Actions to create and approve pull requests" under
+# Settings > Actions > General. Without it GITHUB_TOKEN cannot open a PR and
+# the last two steps fail, however the rest of the run went.
+
+on:
+  issues:
+    types: [opened, edited, labeled]
+
+jobs:
+  add-event:
+    # This repo is public, so anyone can file the form. From the owner or a
+    # collaborator it runs on sight; from anyone else it waits for someone with
+    # write access to add an "approved" label. Either way the result is a pull
+    # request, so nothing reaches the site unreviewed.
+    if: >-
+      github.event.issue.state == 'open' &&
+      contains(github.event.issue.labels.*.name, 'event') &&
+      (
+        contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.issue.author_association) ||
+        (github.event.action == 'labeled' && github.event.label.name == 'approved')
+      )
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - run: pip install pyyaml
+
+      - name: Add the event to _data/events.yml
+        id: convert
+        continue-on-error: true
+        env:
+          # Untrusted input: only ever passed through the environment, never
+          # interpolated into a run step.
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          PROBLEM_FILE: ${{ runner.temp }}/problem.md
+        run: python .github/scripts/issue_to_event.py
+
+      - name: Say what went wrong
+        if: steps.convert.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PROBLEM_FILE: ${{ runner.temp }}/problem.md
+        run: |
+          if [[ -f "$PROBLEM_FILE" ]]; then
+            gh issue comment "${{ github.event.issue.number }}" \
+              --repo "${{ github.repository }}" \
+              --body-file "$PROBLEM_FILE"
+          else
+            gh issue comment "${{ github.event.issue.number }}" \
+              --repo "${{ github.repository }}" \
+              --body "Something went wrong adding this event — see [the run log](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})."
+          fi
+          # The issue stays open so it can be edited and tried again.
+          exit 1
+
+      - name: Validate the file
+        run: python .github/scripts/validate_events.py
+
+      - name: Open the pull request
+        id: pr
+        uses: peter-evans/create-pull-request@84ae59a2cdc2258d6fa0732dd66352dddae2a412 # v7.0.9
+        with:
+          branch: event/issue-${{ github.event.issue.number }}
+          add-paths: _data/events.yml
+          title: "Add event: ${{ steps.convert.outputs.title }}"
+          commit-message: |
+            Add event: ${{ steps.convert.outputs.title }} (#${{ github.event.issue.number }})
+
+            From the "Add a game night" issue form.
+          body: |
+            Adds **${{ steps.convert.outputs.title }}** on ${{ steps.convert.outputs.date }} to the calendar, from #${{ github.event.issue.number }}.
+
+            Merging this puts it on [the events page](https://drink20.com/events) and in the `.ics` feed.
+
+            Closes #${{ github.event.issue.number }}
+          delete-branch: true
+
+      - name: Close the issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ steps.pr.outputs.pull-request-url }}
+        run: |
+          gh issue close "${{ github.event.issue.number }}" \
+            --repo "${{ github.repository }}" \
+            --reason completed \
+            --comment "Queued up as $PR_URL — it goes live when that merges."

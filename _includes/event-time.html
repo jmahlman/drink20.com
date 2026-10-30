@@ -1,0 +1,24 @@
+{%- comment -%}
+How an event's time is written, in one place, so the list and the month grid
+cannot drift apart.
+
+	event       a record from _data/events.yml
+	only_start  truthy for just the start time, which is all a calendar cell
+	            has room for
+
+Minutes are dropped on the hour ("6PM", not "6:00PM"), matching how the blog
+posts write them, and the meridiem is repeated on both ends only when the event
+straddles noon.
+{%- endcomment -%}
+{%- assign event = include.event -%}
+{%- assign start_ap = event.start | date: "%p" -%}
+{%- assign end_ap = event.end | date: "%p" -%}
+{%- assign start_t = event.start | date: "%-I:%M" | remove: ":00" -%}
+{%- assign end_t = event.end | date: "%-I:%M" | remove: ":00" -%}
+{%- if include.only_start -%}
+{{ start_t }}{{ start_ap }}
+{%- elsif start_ap == end_ap -%}
+{{ start_t }}&ndash;{{ end_t }}{{ end_ap }}
+{%- else -%}
+{{ start_t }}{{ start_ap }}&ndash;{{ end_t }}{{ end_ap }}
+{%- endif -%}

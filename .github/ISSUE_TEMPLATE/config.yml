@@ -1,0 +1,10 @@
+# Blank issues stay on: this is the whole site's repo, not just the calendar,
+# so there's plenty worth reporting that no form covers.
+blank_issues_enabled: true
+contact_links:
+  - name: Drink20 on Facebook
+    url: https://www.facebook.com/drink20philly/
+    about: Not a GitHub person? Message us there and we'll add the event ourselves.
+  - name: Current schedule
+    url: https://drink20.com/events
+    about: See what's already on the calendar before adding to it.

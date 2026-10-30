@@ -3,6 +3,11 @@ description: Take a Drink and Roll Initiative
 lang: en-US
 
 url: https://drink20.com
+
+# Build in UTC so site.time is a real UTC stamp for the DTSTAMP field in
+# events.ics, and so a local build and the Actions build agree on dates.
+# Event times themselves are local Philly time, carried as TZID in the feed.
+timezone: UTC
 paginate_path: "blog/page:num/"
 permalink: blog/:title/
 
@@ -35,6 +40,8 @@ navigation:
       url: /about
     - title: Current Breweries
       url: /breweries
+    - title: Events
+      url: /events
     - title: Contact Us
       url: /contact
     - title: Code Of Conduct

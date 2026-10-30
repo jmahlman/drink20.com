@@ -1,0 +1,84 @@
+name: Add a game night
+description: Put an event on the site and in the calendar feed people subscribe to.
+title: "[Event] "
+labels: ["event"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This becomes an entry in `_data/events.yml`, which feeds both
+        [the events page](https://drink20.com/events) and the `.ics` feed.
+
+        Submitted by the repo owner or a collaborator, it opens a pull request
+        straight away. From anyone else it waits for an `approved` label first.
+        Either way nothing reaches the site until that pull request is merged.
+
+  - type: input
+    id: title
+    attributes:
+      label: Event title
+      description: How it reads on the site and in people's calendars.
+      placeholder: Drink20 at Aristaeus
+    validations:
+      required: true
+
+  - type: input
+    id: short
+    attributes:
+      label: Short label (optional)
+      description: >-
+        A few words for the month grid, where a cell is only about ten
+        characters wide. Leave blank to use the full title.
+      placeholder: Goblets & Goblins
+
+  - type: input
+    id: date
+    attributes:
+      label: Date
+      description: Format YYYY-MM-DD.
+      placeholder: "2026-11-18"
+    validations:
+      required: true
+
+  - type: input
+    id: start
+    attributes:
+      label: Start time
+      description: Philly time. "6:00 PM" or "18:00", whichever you'd rather type.
+      placeholder: "6:00 PM"
+    validations:
+      required: true
+
+  - type: input
+    id: end
+    attributes:
+      label: End time
+      description: Philly time, same night — nothing here runs past midnight.
+      placeholder: "9:00 PM"
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: Location (optional)
+      description: >-
+        Calendar apps hand this straight to a maps app, so "Venue, City, ST"
+        works best.
+      placeholder: Aristaeus Brewing, Langhorne, PA
+
+  - type: input
+    id: link
+    attributes:
+      label: Facebook event link (optional)
+      description: The event page on Facebook.
+      placeholder: https://www.facebook.com/events/1234567890
+
+  - type: input
+    id: details
+    attributes:
+      label: Details (optional)
+      description: >-
+        One line — the system being run, a one-off change. It rides along in
+        the calendar feed, so keep it short.
+      placeholder: Daggerheart only — two tables running, no D&D this night.

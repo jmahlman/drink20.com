@@ -1,0 +1,40 @@
+{%- comment -%}
+One event row, shared by the upcoming and past lists on /events.
+
+	event  a record from _data/events.yml
+	past   truthy to dim the card
+
+Times come from event-time.html so this and the month grid stay in step.
+{%- endcomment -%}
+{%- assign event = include.event -%}
+<li class="event-card{% if include.past %} event-card--past{% endif %}">
+	<p class="event-card__when">
+		<time datetime="{{ event.date | date: '%Y-%m-%d' }}T{{ event.start }}">
+			<span class="event-card__weekday">{{ event.date | date: "%a" }}</span>
+			<span class="event-card__month">{{ event.date | date: "%b" }}</span>
+			<span class="event-card__day">{{ event.date | date: "%-d" }}</span>
+			<span class="event-card__year">{{ event.date | date: "%Y" }}</span>
+		</time>
+	</p>
+
+	<div class="event-card__body">
+		<h3 class="event-card__title">{{ event.title | escape }}</h3>
+
+		<p class="event-card__meta">
+			<span>{% include event-time.html event=event %}</span>
+			{%- if event.location %}
+			<span class="dot">{{ event.location | escape }}</span>
+			{%- endif %}
+		</p>
+
+		{%- if event.details %}
+		<p class="event-card__details">{{ event.details | escape }}</p>
+		{%- endif %}
+
+		{%- if event.link %}
+		<p class="event-card__links">
+			<a class="button button--ghost button--small" href="{{ event.link }}">Facebook event</a>
+		</p>
+		{%- endif %}
+	</div>
+</li>

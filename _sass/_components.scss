@@ -45,6 +45,11 @@
 	border-color: var(--accent);
 }
 
+/* For buttons sitting inside a card rather than leading a section. */
+.button--small {
+	padding: 0.45em 0.9em;
+}
+
 /* Post list -------------------------------------------------------------- */
 
 .post-list {
@@ -173,6 +178,371 @@
 	font-family: var(--font-display);
 	font-size: var(--step--1);
 	color: var(--accent);
+}
+
+/* Events ----------------------------------------------------------------- */
+
+/* The subscribe panel is the point of the page, so it sits above the listing
+   and reads as a single block rather than a line of loose links. */
+.subscribe {
+	margin-bottom: var(--space-l);
+	padding: var(--space-m);
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-lg);
+}
+
+.subscribe__title {
+	margin-top: 0;
+	font-family: var(--font-display);
+	font-size: var(--step-1);
+	letter-spacing: var(--display-spacing);
+}
+
+.subscribe__lede,
+.subscribe__note {
+	color: var(--text-muted);
+	font-size: var(--step--1);
+}
+
+.subscribe__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-2xs);
+}
+
+.subscribe__note {
+	margin-bottom: 0;
+}
+
+.event-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: grid;
+	gap: var(--space-s);
+}
+
+.event-card {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--space-s);
+	padding: var(--space-s) var(--space-m);
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-lg);
+	transition: border-color var(--transition);
+}
+
+.event-card:hover {
+	border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+
+/* Past events stay on the page for subscribers' sake, but shouldn't compete
+   with what's coming up. */
+.event-card--past {
+	opacity: 0.62;
+}
+
+/* A date block, not a sentence — the whole point is scanning down the column. */
+.event-card__when {
+	flex: none;
+	width: 4.25rem;
+	margin: 0;
+	padding-right: var(--space-s);
+	border-right: 1px solid var(--border);
+	font-family: var(--font-display);
+	line-height: 1.15;
+	text-align: center;
+}
+
+.event-card__when time {
+	display: grid;
+	gap: 0.1em;
+}
+
+/* Month and day are stacked on purpose rather than left to wrap, so "Oct 28"
+   and "May 5" sit the same way. */
+.event-card__weekday,
+.event-card__month {
+	font-size: var(--step--1);
+	color: var(--accent);
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+}
+
+.event-card__month {
+	color: var(--text-muted);
+}
+
+.event-card__day {
+	font-size: var(--step-2);
+	font-weight: var(--display-weight);
+	line-height: 1;
+}
+
+.event-card__year {
+	font-size: var(--step--1);
+	color: var(--text-muted);
+}
+
+.event-card__body {
+	display: grid;
+	gap: var(--space-3xs);
+	min-width: 0;
+}
+
+.event-card__title {
+	margin: 0;
+	font-size: var(--step-1);
+	line-height: 1.25;
+}
+
+.event-card__meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--space-2xs);
+	margin: 0;
+	font-size: var(--step--1);
+	color: var(--text-muted);
+}
+
+.event-card__meta .dot::before {
+	content: "•";
+	margin-right: var(--space-2xs);
+	opacity: 0.6;
+}
+
+.event-card__details {
+	margin: 0;
+	font-size: var(--step--1);
+	max-width: var(--measure);
+}
+
+.event-card__links {
+	margin: var(--space-3xs) 0 0;
+}
+
+/* Stack the date above the details once the two-column card stops fitting. */
+@media (max-width: 30rem) {
+	.event-card {
+		flex-direction: column;
+		gap: var(--space-2xs);
+	}
+
+	.event-card__when {
+		width: auto;
+		padding-right: 0;
+		border-right: 0;
+		text-align: left;
+	}
+
+	.event-card__when time {
+		display: flex;
+		gap: var(--space-2xs);
+		align-items: baseline;
+	}
+}
+
+/* List / calendar switch -------------------------------------------------- */
+
+/* The radios are the state; :has() does the showing and hiding. Without
+   :has() support both views render, stacked, which is still a usable page. */
+.view-switch {
+	display: inline-flex;
+	gap: var(--space-3xs);
+	margin-bottom: var(--space-m);
+	padding: var(--space-3xs);
+	background: var(--surface-2);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+}
+
+.view-switch__option {
+	padding: 0.4em 1em;
+	border-radius: calc(var(--radius) - 3px);
+	color: var(--text-muted);
+	font-family: var(--font-display);
+	font-size: var(--step--1);
+	cursor: pointer;
+	transition: background var(--transition), color var(--transition);
+}
+
+.view-switch__option:hover {
+	color: var(--text);
+}
+
+.events-browser:has(#events-view-list:checked) .view-switch__option[for="events-view-list"],
+.events-browser:has(#events-view-calendar:checked) .view-switch__option[for="events-view-calendar"] {
+	background: var(--surface);
+	color: var(--text);
+	box-shadow: var(--shadow);
+}
+
+/* The inputs are off-screen, so the ring has to be drawn on their labels. */
+.events-browser:has(#events-view-list:focus-visible) .view-switch__option[for="events-view-list"],
+.events-browser:has(#events-view-calendar:focus-visible) .view-switch__option[for="events-view-calendar"] {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+.events-browser:has(#events-view-calendar:checked) .events-view--list,
+.events-browser:has(#events-view-list:checked) .events-view--calendar {
+	display: none;
+}
+
+/* Month grid -------------------------------------------------------------- */
+
+.cal {
+	table-layout: fixed;
+	margin-block: 0 var(--space-m);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-lg);
+	border-collapse: separate;
+	border-spacing: 0;
+	overflow: hidden;
+}
+
+.cal__title {
+	padding: var(--space-2xs) var(--space-xs);
+	background: var(--surface);
+	border-bottom: 1px solid var(--border);
+	font-family: var(--font-display);
+	font-size: var(--step-0);
+	font-weight: var(--display-weight);
+	text-align: left;
+	caption-side: top;
+}
+
+.cal th {
+	padding: var(--space-3xs);
+	background: var(--surface-2);
+	border-bottom: 1px solid var(--border);
+	color: var(--text-muted);
+	font-size: var(--step--1);
+	font-weight: 400;
+	text-align: center;
+}
+
+.cal th abbr {
+	text-decoration: none;
+}
+
+.cal__cell {
+	height: 5.5rem;
+	padding: var(--space-3xs);
+	border-bottom: 1px solid var(--border);
+	border-left: 1px solid var(--border);
+	vertical-align: top;
+}
+
+.cal__cell:first-child {
+	border-left: 0;
+}
+
+.cal tbody tr:last-child .cal__cell {
+	border-bottom: 0;
+}
+
+.cal__cell--blank {
+	background: var(--surface-2);
+}
+
+.cal__num {
+	display: block;
+	font-family: var(--font-display);
+	font-size: var(--step--1);
+	color: var(--text-muted);
+}
+
+.cal__cell--today .cal__num {
+	display: inline-block;
+	min-width: 1.6em;
+	padding: 0.1em 0.3em;
+	border-radius: 999px;
+	background: var(--accent);
+	color: var(--accent-contrast);
+	text-align: center;
+}
+
+.cal__event {
+	display: block;
+	margin-top: var(--space-3xs);
+	padding: 0.2em 0.4em;
+	border-radius: calc(var(--radius) - 5px);
+	background: color-mix(in srgb, var(--accent) 18%, transparent);
+	border-left: 2px solid var(--accent);
+	color: var(--text);
+	font-size: var(--step--1);
+	line-height: 1.25;
+	text-decoration: none;
+}
+
+a.cal__event:hover {
+	background: color-mix(in srgb, var(--accent) 32%, transparent);
+	color: var(--text);
+}
+
+.cal__event-time {
+	display: block;
+	font-family: var(--font-display);
+	color: var(--accent);
+}
+
+/* A column is about ten characters wide, so the name wraps and is clamped
+   rather than ellipsised down to nothing. Set `short` in the data file for
+   anything that deserves a tighter label. */
+.cal__event-name {
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	overflow-wrap: anywhere;
+}
+
+.cal__note {
+	color: var(--text-muted);
+	font-size: var(--step--1);
+}
+
+/* Below this the cells are too narrow for words, so an event becomes a mark
+   under the date and the list view carries the detail. */
+@media (max-width: 34rem) {
+	.cal__cell {
+		height: 3rem;
+		text-align: center;
+	}
+
+	/* The mark itself is small, so the link around it is padded out to
+	   something a thumb can actually hit. */
+	.cal__event {
+		display: grid;
+		place-items: center;
+		margin-inline: auto;
+		width: 1.75rem;
+		height: 1.5rem;
+		padding: 0;
+		border: 0;
+		background: none;
+	}
+
+	.cal__event::before {
+		content: "";
+		width: 0.5rem;
+		height: 0.5rem;
+		border-radius: 50%;
+		background: var(--accent);
+	}
+
+	a.cal__event:hover {
+		background: none;
+	}
+
+	.cal__event-time,
+	.cal__event-name {
+		display: none;
+	}
 }
 
 /* Page + post headers ---------------------------------------------------- */
