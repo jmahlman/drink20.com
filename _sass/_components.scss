@@ -406,6 +406,10 @@
 
 /* Month grid -------------------------------------------------------------- */
 
+/* No overflow clip here: the detail panel below has to be able to escape the
+   table. That means the corners are rounded piece by piece — the caption caps
+   the top, the last row's end cells cap the bottom — rather than by clipping
+   the whole thing. */
 .cal {
 	table-layout: fixed;
 	margin-block: 0 var(--space-m);
@@ -413,12 +417,20 @@
 	border-radius: var(--radius-lg);
 	border-collapse: separate;
 	border-spacing: 0;
-	overflow: hidden;
+}
+
+.cal tbody tr:last-child .cal__cell:first-child {
+	border-bottom-left-radius: calc(var(--radius-lg) - 1px);
+}
+
+.cal tbody tr:last-child .cal__cell:last-child {
+	border-bottom-right-radius: calc(var(--radius-lg) - 1px);
 }
 
 .cal__title {
 	padding: var(--space-2xs) var(--space-xs);
 	background: var(--surface);
+	border-radius: calc(var(--radius-lg) - 1px) calc(var(--radius-lg) - 1px) 0 0;
 	border-bottom: 1px solid var(--border);
 	font-family: var(--font-display);
 	font-size: var(--step-0);
@@ -522,6 +534,11 @@
 
 .cal__event {
 	display: block;
+	width: 100%;
+	appearance: none;
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
 	margin-top: var(--space-3xs);
 	padding: 0.2em 0.4em;
 	border-radius: calc(var(--radius) - 5px);
@@ -533,7 +550,7 @@
 	text-decoration: none;
 }
 
-a.cal__event:hover {
+.cal__event:hover {
 	background: color-mix(in srgb, var(--accent) 32%, var(--surface));
 	color: var(--text);
 }
@@ -553,6 +570,86 @@ a.cal__event:hover {
 	-webkit-box-orient: vertical;
 	overflow: hidden;
 	overflow-wrap: anywhere;
+}
+
+/* The full details, as the list view shows them. Held open by :hover or
+   :focus-within on the wrapper, which covers pointer, touch and keyboard
+   without script: tapping or tabbing to the chip focuses it, and moving into
+   the panel to click the link keeps focus inside the wrapper. */
+.cal__event-wrap {
+	position: relative;
+}
+
+.cal__popover {
+	position: absolute;
+	z-index: 5;
+	top: calc(100% + 0.35rem);
+	left: 50%;
+	transform: translateX(-50%);
+	width: 15rem;
+	padding: var(--space-xs);
+	background: var(--surface);
+	border: 1px solid var(--border-strong);
+	border-radius: var(--radius);
+	box-shadow: var(--shadow-lg);
+	text-align: left;
+	visibility: hidden;
+	opacity: 0;
+	transition: opacity var(--transition), visibility var(--transition);
+}
+
+.cal__event-wrap:hover .cal__popover,
+.cal__event-wrap:focus-within .cal__popover {
+	visibility: visible;
+	opacity: 1;
+}
+
+/* Hover and focus are independent, so clicking one chip and then hovering
+   another would leave both panels open. While any chip is hovered, every
+   other panel closes — including one left open by a click, and including one
+   in a different month, which is why this hangs off the view rather than the
+   table. */
+.events-view--calendar:has(.cal__event-wrap:hover)
+	.cal__event-wrap:not(:hover)
+	.cal__popover {
+	visibility: hidden;
+	opacity: 0;
+}
+
+/* A panel centred on an end column would hang off the page, so the outer two
+   columns on each side align their panel to the inside edge instead. */
+.cal__cell:nth-child(-n + 2) .cal__popover {
+	left: 0;
+	transform: none;
+}
+
+.cal__cell:nth-child(n + 6) .cal__popover {
+	left: auto;
+	right: 0;
+	transform: none;
+}
+
+.cal__popover-title {
+	margin: 0 0 var(--space-3xs);
+	font-family: var(--font-display);
+	font-size: var(--step-0);
+	font-weight: var(--display-weight);
+	line-height: 1.2;
+}
+
+.cal__popover-meta {
+	margin: 0;
+	font-size: var(--step--1);
+	color: var(--text-muted);
+}
+
+.cal__popover-details {
+	margin: var(--space-3xs) 0 0;
+	font-size: var(--step--1);
+}
+
+.cal__popover-link {
+	margin: var(--space-2xs) 0 0;
 }
 
 .cal__note {
@@ -589,13 +686,21 @@ a.cal__event:hover {
 		background: var(--accent);
 	}
 
-	a.cal__event:hover {
+	.cal__event:hover {
 		background: none;
 	}
 
 	.cal__event-time,
 	.cal__event-name {
 		display: none;
+	}
+
+	/* Still anchored under its own date — a sheet pinned to the bottom of the
+	   screen leaves you looking for which day you tapped. Narrow enough that
+	   even the middle columns, which stay centred, clear the screen edges at
+	   360px. */
+	.cal__popover {
+		width: 13.5rem;
 	}
 }
 
