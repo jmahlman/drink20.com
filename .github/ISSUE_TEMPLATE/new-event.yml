@@ -1,7 +1,9 @@
 name: Add a game night
 description: Put an event on the site and in the calendar feed people subscribe to.
 title: "[Event] "
-labels: ["event"]
+# No labels here on purpose. The "event" label is what approves a submission
+# (see workflows/add-event.yml), so the form must not apply it — a form that
+# labelled its own issues would approve them all on arrival.
 body:
   - type: markdown
     attributes:
@@ -9,9 +11,9 @@ body:
         This becomes an entry in `_data/events.yml`, which feeds both
         [the events page](https://drink20.com/events) and the `.ics` feed.
 
-        Submitted by the repo owner or a collaborator, it opens a pull request
-        straight away. From anyone else it waits for an `approved` label first.
-        Either way nothing reaches the site until that pull request is merged.
+        Once someone with write access adds the `event` label, this becomes a
+        pull request. Nothing reaches the site until that pull request is
+        merged.
 
   - type: input
     id: title
