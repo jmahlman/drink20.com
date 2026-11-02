@@ -55,7 +55,29 @@ END:VTIMEZONE
 {%- assign place = event.location | strip_newlines | replace: "\", "\\" | replace: ";", "\;" | replace: ",", "\," -%}
 {%- assign details = event.details | strip_newlines | replace: "\", "\\" | replace: ";", "\;" | replace: ",", "\," -%}
 BEGIN:VEVENT
-{% capture line %}UID:{{ day }}T{{ from }}-{{ event.title | slugify }}@drink20.com{% endcapture -%}
+{% comment -%}
+The UID has to outlive edits. A calendar client keys on it, so a changed UID
+is not an edit to a subscriber — the old event is dropped and a new one
+appears. That rules out building it from anything correctable, and this used
+to carry the title and the start time, so fixing either churned the event for
+everyone subscribed.
+
+What is left is the date and which event that day it is, counted in file
+order. Two games on one night are rare, and the issue form appends within a
+date rather than ahead of what is there, so an existing event keeps its
+number when another is added alongside it.
+
+Changing an event's date does still change its UID, which is the one case
+where dropping and re-adding is the honest result: nothing is happening on
+the old date any more.
+{%- endcomment -%}
+{%- assign pos = forloop.index0 -%}
+{%- assign seq = 1 -%}
+{%- for prior in site.data.events limit: pos -%}
+{%- assign prior_day = prior.date | date: "%Y%m%d" -%}
+{%- if prior_day == day -%}{%- assign seq = seq | plus: 1 -%}{%- endif -%}
+{%- endfor -%}
+{% capture line %}UID:{{ day }}-{{ seq }}@drink20.com{% endcapture -%}
 {% include ics-fold.html text=line %}
 DTSTAMP:{{ site.time | date: "%Y%m%dT%H%M%SZ" }}
 DTSTART;TZID=America/New_York:{{ day }}T{{ from }}
