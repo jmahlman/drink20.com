@@ -8,10 +8,8 @@ name: Add event from issue
 # Settings > Actions > General. Without it GITHUB_TOKEN cannot open a PR and
 # the last two steps fail, however the rest of the run went.
 #
-# Needs the "event" and "approved" labels to exist in the repo. A label an
-# issue form asks for but the repo does not have is dropped without a word, so
-# a missing "event" label does not fail the form or this workflow — it just
-# means every submission arrives unlabelled and is skipped here.
+# Needs an "event" label to exist in the repo, since that label is what
+# approves a submission and there is nothing to add otherwise.
 
 on:
   issues:
@@ -19,18 +17,16 @@ on:
 
 jobs:
   add-event:
-    # Nothing runs until someone adds the "approved" label, whoever filed the
-    # form — the owner included. Only people with write access can label an
-    # issue, so the label is the gate, and a submission sits untouched until
-    # one of them has read it.
+    # The "event" label is the approval, whoever filed the form — the owner
+    # included. Only people with write access can label an issue, so the label
+    # is the gate, and a submission sits untouched until one of them has read
+    # it and labelled it.
     #
-    # Both labels are wanted: "event" is what the form applies, so requiring it
-    # keeps the workflow off issues that happen to get labelled "approved" for
-    # some unrelated reason.
+    # This is why the issue form applies no labels of its own: if it added
+    # "event" the way it used to, every submission would arrive pre-approved.
     if: >-
       github.event.issue.state == 'open' &&
-      contains(github.event.issue.labels.*.name, 'event') &&
-      contains(github.event.issue.labels.*.name, 'approved')
+      contains(github.event.issue.labels.*.name, 'event')
     runs-on: ubuntu-latest
     permissions:
       contents: write
