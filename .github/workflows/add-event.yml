@@ -7,6 +7,11 @@ name: Add event from issue
 # Needs "Allow GitHub Actions to create and approve pull requests" under
 # Settings > Actions > General. Without it GITHUB_TOKEN cannot open a PR and
 # the last two steps fail, however the rest of the run went.
+#
+# Needs the "event" and "approved" labels to exist in the repo. A label an
+# issue form asks for but the repo does not have is dropped without a word, so
+# a missing "event" label does not fail the form or this workflow — it just
+# means every submission arrives unlabelled and is skipped here.
 
 on:
   issues:
@@ -14,17 +19,18 @@ on:
 
 jobs:
   add-event:
-    # This repo is public, so anyone can file the form. From the owner or a
-    # collaborator it runs on sight; from anyone else it waits for someone with
-    # write access to add an "approved" label. Either way the result is a pull
-    # request, so nothing reaches the site unreviewed.
+    # Nothing runs until someone adds the "approved" label, whoever filed the
+    # form — the owner included. Only people with write access can label an
+    # issue, so the label is the gate, and a submission sits untouched until
+    # one of them has read it.
+    #
+    # Both labels are wanted: "event" is what the form applies, so requiring it
+    # keeps the workflow off issues that happen to get labelled "approved" for
+    # some unrelated reason.
     if: >-
       github.event.issue.state == 'open' &&
       contains(github.event.issue.labels.*.name, 'event') &&
-      (
-        contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.issue.author_association) ||
-        (github.event.action == 'labeled' && github.event.label.name == 'approved')
-      )
+      contains(github.event.issue.labels.*.name, 'approved')
     runs-on: ubuntu-latest
     permissions:
       contents: write
