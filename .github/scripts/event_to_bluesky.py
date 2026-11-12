@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
-"""Pick the next event to announce on Bluesky and write the post text.
+"""Work out what to announce on Bluesky and write the post text.
 
-Reads _data/events.yml, drops anything already announced and anything whose
-date has passed, and emits the soonest event left. One event per run: posting
-is a single `uses:` step and GitHub Actions cannot loop over those, so a
-backlog drains across runs — the workflow's daily schedule is what moves it
-along when no deploy is coming.
+Reads _data/events.yml and drops anything already announced or already past.
+Whatever is left goes out in a single post: one event gets a sentence of its
+own, several get listed together. That keeps a batch of events to one post
+rather than one per deploy, and it means posting stays a single `uses:` step,
+which matters because GitHub Actions cannot loop over those.
 
 Announced events are tracked by the UID the .ics feed gives them, so the
 record survives a correction to a title, a time or a location. That is the
 whole reason the feed stopped deriving UIDs from those fields; see events.ics.
 
-Writes `found`, `uid`, `text` and `url` to GITHUB_OUTPUT when there is
-something to post, and `found=false` when there is not.
+Writes `found`, `count`, `text`, `url`, `lines` and `subject` to
+GITHUB_OUTPUT when there is something to post, and `found=false` when there
+is not. `lines` is what the workflow appends to the tracking file, one per
+event, so the file's format stays next to the code that reads it back.
 """
 
 import os
@@ -28,7 +30,12 @@ POSTED_PATH = ROOT / ".github" / "bluesky-posted-events.txt"
 
 SITE = "https://drink20.com"
 CALENDAR_URL = f"{SITE}/events"
-PREFIX = "New Drink20 event posted - "
+PREFIX_ONE = "New Drink20 event posted - "
+PREFIX_MANY = "New Drink20 events posted - "
+
+# Entries in a combined post carry commas of their own, so they are joined
+# with semicolons rather than commas.
+JOIN = "; "
 
 # Bluesky counts graphemes, not bytes. Nothing here reaches for an emoji, so
 # counting characters is the same number and a title is all that can overrun.
@@ -85,16 +92,57 @@ def time_range(start, end):
     return f"{start_t}{start_ap}{NDASH}{end_t}{end_ap}"
 
 
-def post_text(when, event):
+def entry(when, event, room=None):
+    """One event as "Title, Sunday November 22 at 2:30-5:30PM".
+
+    With a `room` budget, the title gives way rather than the date and time:
+    a clipped title still reads, a clipped date is useless.
+    """
     tail = (
         f", {when:%A} {when:%B} {when.day}"
-        f" at {time_range(event['start'], event['end'])} {CALENDAR_URL}"
+        f" at {time_range(event['start'], event['end'])}"
     )
-    room = POST_LIMIT - len(PREFIX) - len(tail)
     title = str(event["title"]).strip()
-    if len(title) > room:
-        title = title[: max(room - 1, 0)].rstrip() + ELLIPSIS
-    return f"{PREFIX}{title}{tail}"
+    if room is not None:
+        allowed = room - len(tail)
+        if len(title) > allowed:
+            title = title[: max(allowed - 1, 0)].rstrip() + ELLIPSIS
+    return f"{title}{tail}"
+
+
+def listing(entries, keep):
+    body = JOIN.join(entries[:keep])
+    dropped = len(entries) - keep
+    if dropped:
+        body += f"{JOIN}and {dropped} more"
+    return body
+
+
+def post_text(rows):
+    """The whole post for one or more events, inside the character limit."""
+    link = f" {CALENDAR_URL}"
+
+    if len(rows) == 1:
+        _, when, event = rows[0]
+        room = POST_LIMIT - len(PREFIX_ONE) - len(link)
+        return f"{PREFIX_ONE}{entry(when, event, room=room)}{link}"
+
+    budget = POST_LIMIT - len(PREFIX_MANY) - len(link)
+    entries = [entry(when, event) for _, when, event in rows]
+
+    # As many events named outright as will fit, the rest counted. Dropping
+    # from the end keeps the soonest ones visible, since rows are sorted.
+    for keep in range(len(entries), 1, -1):
+        body = listing(entries, keep)
+        if len(body) <= budget:
+            return f"{PREFIX_MANY}{body}{link}"
+
+    # Not even two fit: name the first and count the rest, clipping its title
+    # against whatever "and N more" leaves behind.
+    suffix = f"{JOIN}and {len(entries) - 1} more"
+    _, when, event = rows[0]
+    first = entry(when, event, room=budget - len(suffix))
+    return f"{PREFIX_MANY}{first}{suffix}{link}"
 
 
 def already_posted():
@@ -146,25 +194,32 @@ def main():
         return 0
 
     pending.sort(key=lambda row: (row[1], row[0]))
-    uid, when, event = pending[0]
-    text = post_text(when, event)
+    text = post_text(pending)
 
-    if len(pending) > 1:
-        waiting = ", ".join(f"{row[1]} {row[2]['title']}" for row in pending[1:])
-        print(f"Also waiting, one per run: {waiting}")
-
-    print(f"Announcing {uid}")
+    print(f"Announcing {len(pending)} event(s) in one post:")
+    for uid, when, event in pending:
+        print(f"  {uid}  {when}  {event['title']}")
     print(f"{len(text)} of {POST_LIMIT} characters:")
     print(f"  {text}")
 
-    # The workflow appends `line` verbatim, so the file's format lives here
-    # next to the code that reads it back.
+    # Every event in the post is recorded, whether or not it was named in the
+    # text: they have all been announced, and an "and 2 more" that came round
+    # again next deploy would be a duplicate.
+    lines = "\n".join(
+        f"{uid}  # {when} {event['title']}" for uid, when, event in pending
+    )
+    if len(pending) == 1:
+        subject = f"Track announced event {pending[0][0]}"
+    else:
+        subject = f"Track {len(pending)} announced events"
+
     emit(
         found="true",
-        uid=uid,
+        count=str(len(pending)),
         text=text,
         url=CALENDAR_URL,
-        line=f"{uid}  # {when} {event['title']}",
+        lines=lines,
+        subject=subject,
     )
     return 0
 

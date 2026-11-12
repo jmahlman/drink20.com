@@ -4,8 +4,8 @@ name: Post updates to Bluesky
 # posting action and the habit of running after a deploy:
 #
 #   blog    the newest post from the RSS feed, if it went up today
-#   events  the next game night in _data/events.yml that has not been
-#           announced yet
+#   events  every game night in _data/events.yml not yet announced, together
+#           in one post
 #
 # The jobs run one after the other rather than together: both commit a
 # tracking file to main, and two pushes racing would leave one rejected.
@@ -17,10 +17,10 @@ on:
     types:
       - completed
 
-  # The events job announces one event per run, so a day that adds two of them
-  # leaves one waiting. Nothing else would pick it up: a push by GITHUB_TOKEN
-  # does not start another deploy, so the tracking commit cannot cascade into
-  # the next announcement. This is what drains the backlog. 10AM Philly time.
+  # A retry, not a backlog drain: events are announced together in one post,
+  # so nothing is ever left waiting its turn. But a run that fails while
+  # Bluesky is unreachable leaves events unannounced with no second chance,
+  # because a push by GITHUB_TOKEN starts no further deploy. 10AM Philly time.
   schedule:
     - cron: "0 15 * * *"
 
@@ -390,8 +390,8 @@ jobs:
       - run: pip install pyyaml
 
       # Reads _data/events.yml, skips what is past or already announced, and
-      # writes the post text for the soonest event left.
-      - name: Pick the next event to announce
+      # writes one post covering everything left.
+      - name: Work out what to announce
         id: pick
         run: python .github/scripts/event_to_bluesky.py
 
@@ -423,18 +423,19 @@ jobs:
           password: ${{ secrets.BLUESKY_PASSWORD }}
 
       # Recorded only once a post has actually landed, and pushed with a
-      # rebase retry: if this commit were lost, the event would be announced
-      # a second time on the next run.
+      # rebase retry: if this commit were lost, every event in that post
+      # would be announced a second time on the next run.
       - name: Record the announcement
         if: >-
           steps.post_card.outcome == 'success' ||
           steps.post_plain.outcome == 'success'
         env:
-          RECORD_LINE: ${{ steps.pick.outputs.line }}
-          EVENT_UID: ${{ steps.pick.outputs.uid }}
+          # One line per event in the post, so a batch is recorded whole.
+          RECORD_LINES: ${{ steps.pick.outputs.lines }}
+          COMMIT_SUBJECT: ${{ steps.pick.outputs.subject }}
         run: |
           POSTED_FILE=".github/bluesky-posted-events.txt"
-          printf '%s\n' "$RECORD_LINE" >> "$POSTED_FILE"
+          printf '%s\n' "$RECORD_LINES" >> "$POSTED_FILE"
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -445,7 +446,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "Track announced event $EVENT_UID"
+          git commit -m "$COMMIT_SUBJECT"
 
           for attempt in 1 2 3; do
             if git push origin HEAD:main; then
@@ -456,8 +457,9 @@ jobs:
             git fetch origin main && git rebase origin/main || exit 1
           done
 
-          echo "::error::Posted to Bluesky but could not record it. Add this"
-          echo "::error::line to $POSTED_FILE by hand or it posts again: $RECORD_LINE"
+          echo "::error::Posted to Bluesky but could not record it. Add these"
+          echo "::error::lines to $POSTED_FILE by hand or they post again:"
+          printf '::error::  %s\n' "$RECORD_LINES"
           exit 1
 
       - name: Summary
@@ -466,12 +468,18 @@ jobs:
           # Through the environment, not interpolated: the text carries an
           # event title, and titles arrive from a form anyone can file.
           FOUND: ${{ steps.pick.outputs.found }}
-          UID: ${{ steps.pick.outputs.uid }}
+          COUNT: ${{ steps.pick.outputs.count }}
+          LINES: ${{ steps.pick.outputs.lines }}
           TEXT: ${{ steps.pick.outputs.text }}
         run: |
-          echo "Found an event to announce: $FOUND"
-          echo "UID: $UID"
+          echo "Found something to announce: $FOUND"
+          echo "Events in the post: ${COUNT:-0}"
           echo "Text: $TEXT"
+          # Not `[[ -n ... ]] && printf`: as the last command in the step that
+          # would exit 1 whenever there was nothing to announce.
+          if [[ -n "$LINES" ]]; then
+            printf '  %s\n' "$LINES"
+          fi
           echo "Dry run: ${{ inputs.dry_run }}"
           echo "Card post outcome: ${{ steps.post_card.outcome }}"
           echo "Plain post outcome: ${{ steps.post_plain.outcome }}"
