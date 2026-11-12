@@ -1,4 +1,14 @@
-name: Post Latest Blog from RSS to Bluesky
+name: Post updates to Bluesky
+
+# Two announcements, one place, because they share the credentials, the
+# posting action and the habit of running after a deploy:
+#
+#   blog    the newest post from the RSS feed, if it went up today
+#   events  the next game night in _data/events.yml that has not been
+#           announced yet
+#
+# The jobs run one after the other rather than together: both commit a
+# tracking file to main, and two pushes racing would leave one rejected.
 
 on:
   workflow_run:
@@ -7,10 +17,22 @@ on:
     types:
       - completed
 
+  # The events job announces one event per run, so a day that adds two of them
+  # leaves one waiting. Nothing else would pick it up: a push by GITHUB_TOKEN
+  # does not start another deploy, so the tracking commit cannot cascade into
+  # the next announcement. This is what drains the backlog. 10AM Philly time.
+  schedule:
+    - cron: "0 15 * * *"
+
   workflow_dispatch:
     inputs:
       skip_date_check:
-        description: "Skip the date check and post anyway"
+        description: "Blog: skip the date check and post anyway"
+        required: false
+        type: boolean
+        default: false
+      dry_run:
+        description: "Events: work out the post and log it, but do not send it"
         required: false
         type: boolean
         default: false
@@ -24,7 +46,7 @@ permissions:
   contents: write
 
 jobs:
-  fetch-and-post:
+  blog:
     runs-on: ubuntu-latest
 
     steps:
@@ -341,5 +363,115 @@ jobs:
           echo "og:image: ${{ steps.og_check.outputs.og_image }}"
           echo "og:image size: ${{ steps.og_check.outputs.og_size }}"
           echo "Card eligible: ${{ steps.og_check.outputs.card }}"
+          echo "Card post outcome: ${{ steps.post_card.outcome }}"
+          echo "Plain post outcome: ${{ steps.post_plain.outcome }}"
+
+  announce-event:
+    # After the blog job whatever became of it: "needs" is here to order the
+    # two pushes, not to make one depend on the other succeeding.
+    needs: blog
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          # main rather than the commit that triggered this, so the calendar
+          # read here is the current one and so the tracking commit lands on
+          # top of whatever the blog job just pushed.
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - run: pip install pyyaml
+
+      # Reads _data/events.yml, skips what is past or already announced, and
+      # writes the post text for the soonest event left.
+      - name: Pick the next event to announce
+        id: pick
+        run: python .github/scripts/event_to_bluesky.py
+
+      # No og:image check here, unlike the blog job above: every page on the
+      # site falls back to the same 94KB og-default.png, so there is no
+      # per-event image that could overrun Bluesky's blob limit. If the card
+      # fails anyway, the next step posts the same text without one.
+      - name: Post to Bluesky (with link card)
+        id: post_card
+        if: steps.pick.outputs.found == 'true' && inputs.dry_run != true
+        continue-on-error: true
+        uses: myConsciousness/bluesky-post@v5
+        with:
+          text: "${{ steps.pick.outputs.text }}"
+          link-preview-url: "${{ steps.pick.outputs.url }}"
+          identifier: ${{ secrets.BLUESKY_IDENTIFIER }}
+          password: ${{ secrets.BLUESKY_PASSWORD }}
+
+      - name: Post to Bluesky (plain text fallback)
+        id: post_plain
+        if: >-
+          steps.pick.outputs.found == 'true' &&
+          inputs.dry_run != true &&
+          steps.post_card.outcome == 'failure'
+        uses: myConsciousness/bluesky-post@v5
+        with:
+          text: "${{ steps.pick.outputs.text }}"
+          identifier: ${{ secrets.BLUESKY_IDENTIFIER }}
+          password: ${{ secrets.BLUESKY_PASSWORD }}
+
+      # Recorded only once a post has actually landed, and pushed with a
+      # rebase retry: if this commit were lost, the event would be announced
+      # a second time on the next run.
+      - name: Record the announcement
+        if: >-
+          steps.post_card.outcome == 'success' ||
+          steps.post_plain.outcome == 'success'
+        env:
+          RECORD_LINE: ${{ steps.pick.outputs.line }}
+          EVENT_UID: ${{ steps.pick.outputs.uid }}
+        run: |
+          POSTED_FILE=".github/bluesky-posted-events.txt"
+          printf '%s\n' "$RECORD_LINE" >> "$POSTED_FILE"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "$POSTED_FILE"
+
+          if git diff --staged --quiet; then
+            echo "Nothing to record."
+            exit 0
+          fi
+
+          git commit -m "Track announced event $EVENT_UID"
+
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then
+              echo "Recorded on attempt $attempt."
+              exit 0
+            fi
+            echo "Push rejected, rebasing onto main and retrying..."
+            git fetch origin main && git rebase origin/main || exit 1
+          done
+
+          echo "::error::Posted to Bluesky but could not record it. Add this"
+          echo "::error::line to $POSTED_FILE by hand or it posts again: $RECORD_LINE"
+          exit 1
+
+      - name: Summary
+        if: always()
+        env:
+          # Through the environment, not interpolated: the text carries an
+          # event title, and titles arrive from a form anyone can file.
+          FOUND: ${{ steps.pick.outputs.found }}
+          UID: ${{ steps.pick.outputs.uid }}
+          TEXT: ${{ steps.pick.outputs.text }}
+        run: |
+          echo "Found an event to announce: $FOUND"
+          echo "UID: $UID"
+          echo "Text: $TEXT"
+          echo "Dry run: ${{ inputs.dry_run }}"
           echo "Card post outcome: ${{ steps.post_card.outcome }}"
           echo "Plain post outcome: ${{ steps.post_plain.outcome }}"
