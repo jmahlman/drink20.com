@@ -3,13 +3,12 @@
 # announced again. Keyed on the UID rather than the title so that correcting
 # an event does not announce it a second time.
 #
-# Seeded with everything already on the site when announcing was switched on,
-# so turning it on did not post a backlog. Delete a line to announce that
-# event on the next run.
+# Seeded when announcing was switched on, so switching it on did not post a
+# backlog of events people had already seen. Delete a line to announce that
+# event again on the next run.
 20260910-1@drink20.com  # 2026-09-10 Drink20 at Second Sin
 20260916-1@drink20.com  # 2026-09-16 Drink20 at Broken Goblet
 20260923-1@drink20.com  # 2026-09-23 Drink20 at Aristaeus
 20261028-1@drink20.com  # 2026-10-28 Drink20 at Aristaeus
 20261112-1@drink20.com  # 2026-11-12 Tabletop @ Second Sin Bristol
 20261118-1@drink20.com  # 2026-11-18 November Goblets and Goblins at Broken Goblet Brewing
-20261122-1@drink20.com  # 2026-11-22 Tabletop Brunch at Aristaeus
