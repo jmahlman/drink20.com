@@ -12,3 +12,4 @@
 20261028-1@drink20.com  # 2026-10-28 Drink20 at Aristaeus
 20261112-1@drink20.com  # 2026-11-12 Tabletop @ Second Sin Bristol
 20261118-1@drink20.com  # 2026-11-18 November Goblets and Goblins at Broken Goblet Brewing
+20261122-1@drink20.com  # 2026-11-22 Tabletop Brunch at Aristaeus
