@@ -18,9 +18,14 @@ on:
       - completed
 
   # A retry, not a backlog drain: events are announced together in one post,
-  # so nothing is ever left waiting its turn. But a run that fails while
-  # Bluesky is unreachable leaves events unannounced with no second chance,
-  # because a push by GITHUB_TOKEN starts no further deploy. 10AM Philly time.
+  # so nothing is ever left waiting its turn. A run that fails while Bluesky
+  # is unreachable would otherwise get no second chance, since a push by
+  # GITHUB_TOKEN starts no further deploy.
+  #
+  # The deploy workflow now also runs daily, which reaches this job through
+  # workflow_run, so this is the second of two tries rather than the only
+  # one. Kept because that one does not help if the deploy itself is what
+  # failed. 10AM Philly time.
   schedule:
     - cron: "0 15 * * *"
 

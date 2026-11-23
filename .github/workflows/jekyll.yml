@@ -11,6 +11,23 @@ on:
   push:
     branches: ["main"]
 
+  # The events page works out "today" from site.time, which is frozen at
+  # build time: the "Tonight!" badge, the upcoming/past split and which
+  # months the grid shows are all decided when Jekyll runs, not when someone
+  # visits. Without this the page keeps whatever day it was last built on —
+  # it sat on Nov 12 for eleven days once.
+  #
+  # 05:10 UTC is just after the page's own day turns over. events.html reads
+  # Philly time as UTC minus five hours, so its midnight is 05:00 UTC; the
+  # ten minutes are slack, since GitHub runs scheduled jobs late more often
+  # than not and never early.
+  #
+  # Worth knowing: GitHub turns a schedule off after 60 days with no commits
+  # to the repo, and says so only by email. If the page ever goes stale again
+  # the way it did before this existed, check that first.
+  schedule:
+    - cron: "10 5 * * *"
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
